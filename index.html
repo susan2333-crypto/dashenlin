@@ -1,0 +1,508 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.app{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;font-size:13px;background:#f5f5f5;min-height:600px;}
+.search-wrap{background:#fff;padding:12px 16px 0;border-bottom:1px solid #f0f0f0;}
+.search-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;}
+.sf{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.sf label{font-size:13px;color:#333;flex-shrink:0;}
+.sf input{height:32px;padding:0 11px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;color:#333;background:#fff;outline:none;width:130px;}
+.sf input:focus{border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.1);}
+.sf select{height:32px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;color:#333;background:#fff;outline:none;min-width:110px;cursor:pointer;}
+.sf select:focus{border-color:#1890ff;}
+.search-btns{display:flex;gap:8px;margin-left:auto;align-items:center;flex-shrink:0;}
+.sbtn{height:32px;padding:0 15px;border-radius:4px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;border:1px solid #d9d9d9;background:#fff;color:#333;}
+.sbtn.primary{background:#1890ff;border-color:#1890ff;color:#fff;}
+.sbtn.primary:hover{background:#40a9ff;}
+.sbtn:hover{border-color:#1890ff;color:#1890ff;}
+.cond-row{font-size:12px;color:#999;padding:6px 0 8px;}
+.cards-wrap{background:#fff;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid #f0f0f0;}
+.card{padding:20px 24px;cursor:pointer;display:flex;align-items:center;gap:16px;position:relative;transition:background .15s;}
+.card+.card{border-left:1px solid #f0f0f0;}
+.card:hover{background:#fafafa;}
+.card.cur{background:#fafafa;}
+.card.cur::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:#1890ff;}
+.card-icon{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.ic-blue{background:#e6f7ff;}.ic-orange{background:#fff7e6;}.ic-red{background:#fff1f0;}
+.card-num{font-size:30px;font-weight:600;line-height:1;color:#262626;}
+.card-lbl{font-size:13px;color:#8c8c8c;margin-top:4px;}
+.card-sub{font-size:11px;color:#bfbfbf;margin-top:3px;}
+.list-wrap{background:#fff;margin-top:8px;}
+.list-top{display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid #f0f0f0;}
+.vts{display:flex;}
+.vt{font-size:13px;padding:12px 16px;cursor:pointer;color:#595959;border-bottom:2px solid transparent;white-space:nowrap;line-height:1.4;}
+.vt.cur{color:#1890ff;border-bottom-color:#1890ff;}
+.vt:hover{color:#1890ff;}
+.act-row{display:flex;gap:8px;align-items:center;padding:8px 0;}
+.abtn{height:30px;padding:0 12px;border-radius:4px;font-size:12px;cursor:pointer;border:1px solid #d9d9d9;background:#fff;color:#333;white-space:nowrap;}
+.abtn:hover{border-color:#1890ff;color:#1890ff;}
+.abtn.blue{background:#1890ff;border-color:#1890ff;color:#fff;}
+.abtn.blue:hover{background:#40a9ff;}
+.rbar{display:flex;align-items:center;gap:8px;padding:10px 16px 6px;}
+.rc{font-size:12px;color:#8c8c8c;}
+.tw{overflow-x:auto;padding:0 16px 16px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 8px;font-size:12px;font-weight:500;color:#8c8c8c;border-bottom:1px solid #f0f0f0;white-space:nowrap;background:#fff;}
+td{padding:10px 8px;border-bottom:1px solid #f5f5f5;color:#262626;white-space:nowrap;vertical-align:middle;background:#fff;}
+tr:hover td{background:#fafafa !important;}
+tr.er td{background:#fff5f5 !important;}
+tr.er:hover td{background:#ffecec !important;}
+tr.acr{cursor:pointer;}
+.tag{display:inline-block;padding:1px 8px;border-radius:2px;font-size:12px;line-height:20px;white-space:nowrap;}
+.t-blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;}
+.t-gray{background:#fafafa;color:#595959;border:1px solid #d9d9d9;}
+.t-orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591;}
+.t-green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
+.t-red{background:#fff1f0;color:#f5222d;border:1px solid #ffa39e;}
+.t-teal{background:#e6fffb;color:#13c2c2;border:1px solid #87e8de;}
+.t-purple{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7;}
+.rpa-cell{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;max-width:220px;}
+.rpa-suc{color:#52c41a;}.rpa-fail{color:#f5222d;font-weight:500;}.rpa-pend{color:#fa8c16;}
+.al{font-size:12px;cursor:pointer;background:none;border:none;padding:0;font-family:inherit;color:#1890ff;white-space:nowrap;}
+.ub{font-size:12px;cursor:pointer;background:#fff;border:1px solid #d9d9d9;padding:1px 8px;border-radius:4px;font-family:inherit;color:#595959;white-space:nowrap;}
+.ub:hover{border-color:#1890ff;color:#1890ff;}
+.ft{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:#1890ff;padding:1px 6px;background:#e6f7ff;border-radius:2px;border:1px solid #91d5ff;white-space:nowrap;}
+.emp-cell{text-align:center;padding:32px;color:#bfbfbf;font-size:13px;}
+.pg-wrap{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:12px 16px;border-top:1px solid #f0f0f0;}
+.pg-txt{font-size:12px;color:#595959;margin-right:4px;}
+.pb{min-width:32px;height:32px;padding:0 6px;border:1px solid #d9d9d9;border-radius:4px;cursor:pointer;background:#fff;color:#595959;font-size:13px;display:inline-flex;align-items:center;justify-content:center;}
+.pb:hover{border-color:#1890ff;color:#1890ff;}
+.pb.cur{background:#1890ff;border-color:#1890ff;color:#fff;}
+.pb:disabled{cursor:not-allowed;color:#d9d9d9;border-color:#d9d9d9;}
+.pg-size{height:32px;padding:0 8px;border:1px solid #d9d9d9;border-radius:4px;font-size:12px;background:#fff;color:#595959;cursor:pointer;}
+.pg-jump{display:flex;align-items:center;gap:4px;font-size:12px;color:#595959;margin-left:8px;}
+.pg-jump input{width:48px;height:32px;border:1px solid #d9d9d9;border-radius:4px;text-align:center;font-size:12px;outline:none;}
+.sub-wrap{background:#fafafa;border-top:1px solid #f0f0f0;}
+.sub-label{font-size:12px;font-weight:500;color:#595959;padding:8px 16px 4px;}
+.sub-scroll{overflow-x:auto;padding:0 16px 10px;}
+.sub-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.sub-tbl th{padding:8px;font-size:12px;font-weight:500;color:#8c8c8c;border-bottom:1px solid #e8e8e8;background:#f5f5f5;white-space:nowrap;}
+.sub-tbl td{padding:8px;border-bottom:1px solid #f0f0f0;color:#262626;white-space:nowrap;background:#fafafa;}
+</style>
+
+<div class="app">
+<div class="search-wrap">
+  <div class="search-row">
+    <!-- 月份：第一个字段，最核心 -->
+    <div class="sf"><label>月份</label>
+      <select id="smonth" onchange="render()" style="min-width:120px;">
+        <option value="2026-03" selected>2026-03（当月）</option>
+        <option value="2026-02">2026-02</option>
+        <option value="2026-01">2026-01</option>
+        <option value="2025-12">2025-12</option>
+        <option value="2025-11">2025-11</option>
+        <option value="2025-10">2025-10</option>
+      </select>
+    </div>
+    <div class="sf"><label>员工姓名</label><input id="sn" oninput="render()"/></div>
+    <div class="sf"><label>员工号</label><input id="se" oninput="render()"/></div>
+    <div class="sf"><label>单位名称</label>
+      <select id="sunit" onchange="render()">
+        <option value="">全部</option>
+        <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+      </select>
+    </div>
+    <div class="sf"><label>变动类型</label>
+      <select id="sct" onchange="render()">
+        <option value="">全部</option>
+        <option>增员</option><option>减员</option><option>补缴</option><option>调基</option>
+      </select>
+    </div>
+    <div class="sf"><label>社保主体</label>
+      <select id="ssj" onchange="render()">
+        <option value="">全部</option>
+        <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+      </select>
+    </div>
+    <div class="sf"><label>公积金主体</label>
+      <select id="sgj" onchange="render()">
+        <option value="">全部</option>
+        <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+      </select>
+    </div>
+    <div class="sf"><label>申报系统</label>
+      <select id="ss" onchange="render()">
+        <option value="">全部</option>
+        <option>社保系统</option><option>公积金系统</option>
+      </select>
+    </div>
+    <div class="sf"><label>失败类型</label>
+      <select id="sft" onchange="render()">
+        <option value="">全部</option>
+        <option>申报失败</option><option>缴费失败</option>
+      </select>
+    </div>
+    <div class="search-btns">
+      <button class="sbtn primary" onclick="render()">🔍 搜索</button>
+      <button class="sbtn" onclick="clearAll()">重置</button>
+      <button class="sbtn" style="padding:0 8px;font-size:16px;color:#8c8c8c;">⋯</button>
+    </div>
+  </div>
+  <div class="cond-row" id="co">已选条件：月份: 2026-03（当月）</div>
+</div>
+
+<div class="cards-wrap">
+  <div class="card cur" id="cd0" onclick="sw(0)">
+    <div class="card-icon ic-blue">📋</div>
+    <div><div class="card-num" id="cn0">86</div><div class="card-lbl">月度变动台账</div><div class="card-sub" id="cs0">增员42 · 减员28 · 补缴7 · 调基9</div></div>
+  </div>
+  <div class="card" id="cd1" onclick="sw(1)">
+    <div class="card-icon ic-orange">💰</div>
+    <div><div class="card-num" id="cn1">8</div><div class="card-lbl">月度缴费台账</div><div class="card-sub" id="cs1">差异待确认1 · 缴费异常1 · 已缴费5</div></div>
+  </div>
+  <div class="card" id="cd2" onclick="sw(2)">
+    <div class="card-icon ic-red">⚠</div>
+    <div><div class="card-num" id="cn2">3</div><div class="card-lbl">RPA失败数据台账</div><div class="card-sub" id="cs2">申报失败3 · 缴费失败0</div></div>
+  </div>
+</div>
+
+<div class="list-wrap"><div id="la"></div></div>
+</div>
+
+<script>
+function getV(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function tag(v){
+  if(!v)return'';
+  const M={增员:'t-blue',减员:'t-gray',补缴:'t-orange',调基:'t-teal',月度工单:'t-gray',异地申请:'t-teal',紧急工单:'t-orange',待审核:'t-orange',审核通过:'t-green',已缴费:'t-green',已核定未缴费:'t-orange',缴费异常:'t-red',未核对:'t-gray',无差异:'t-green',有差异:'t-orange',社保系统:'t-blue',公积金系统:'t-teal',正常参保:'t-blue',异地参保:'t-purple',未缴纳:'t-orange',已缴纳:'t-green',已停保:'t-gray',在保人员:'t-gray'};
+  return`<span class="tag ${M[v]||'t-gray'}">${v}</span>`;
+}
+function tx(v){return(!v||v==='—')?'':v;}
+function rh(items){
+  if(!items||!items.length)return'';
+  const hf=items.some(i=>i.s==='申报失败'),as=items.every(i=>i.s==='申报成功');
+  const c=hf?'rpa-fail':as?'rpa-suc':'rpa-pend';
+  const str=items.map(i=>i.n+i.s).join('，');
+  return`<span class="rpa-cell ${c}" title="${str}">${str}</span>`;
+}
+function aS(it){return it&&it.length>0&&it.every(i=>i.s==='申报成功');}
+function aF(it){return it&&it.some(i=>i.s==='申报失败');}
+function aP(it){return it&&it.some(i=>i.s==='待申报')&&!aF(it);}
+
+const INS_SETS=['基本养老保险、基本医疗保险、失业保险、工伤保险','基本养老保险、基本医疗保险、失业保险、工伤保险、住房公积金','基本养老保险、基本医疗保险、失业保险、工伤保险、生育保险','基本养老保险、基本医疗保险、失业保险、工伤保险、住房公积金、补充住房公积金','基本养老保险、基本医疗保险、失业保险、工伤保险、长期护理险','基本养老保险、基本医疗保险、工伤保险、住房公积金、补充医疗保险','特定人员单项工伤险','基本养老保险、基本医疗保险、失业保险、工伤保险、生育保险、住房公积金'];
+const INS_RPA=[['基本养老保险','基本医疗保险','失业保险','工伤保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','住房公积金'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','住房公积金','补充住房公积金'],['基本养老保险','基本医疗保险','失业保险','工伤保险','长期护理险'],['基本养老保险','基本医疗保险','工伤保险','住房公积金','补充医疗保险'],['特定人员单项工伤险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险','住房公积金']];
+const NS=['谭艳韵','梁文博','林爱护','路明非','奥特曼','李欢欢','张三丰','施婷','法克','设计师','李思远','王小明','陈晓红','周大强','刘丽华','赵明华','孙磊','刘芳','陈静','杨帆','黄志远','吴佳宁','徐伟','朱晓燕','郑凯','马丽萍','刘建国','周雪梅','蒋俊杰','方宇','潘晨','吕浩然','严文博','丁雅琴','唐晓龙','冯晓丽','沈博文','卢晓燕','贺子豪','韩雨欣','曹晓明','侯月华','龙晓涛','白雪梅','廖博文','邓思远','石晓龙','易雅琴','熊文博','傅晓燕','苏志远','阮子豪','薛月华','贾晓明','程博文','许思远','殷晓龙','魏雅琴','柳文博','钱晓燕','余志远','洪子豪','叶月华','胡晓明','狄博文','庞思远','秦晓龙','伍雅琴','毕文博','聂晓燕','华志远','季子豪','葛月华','邹晓明','安博文','史思远','谢晓龙','钟雅琴','姚文博','童晓燕','申博文','桂月华'];
+const DP=['01130店广州礼岗','智慧人力组','行政技术组','01100店漯河前周','后台质量组','行政产品组','财务管理组','厨房组','体验设计组','数据平台组','01200店佛山南海','运营支持组','供应链组','品牌营销组','IT基础设施组','薪酬福利组','法务合规组'];
+const SJ=['大参林医药集团','大参林（广州）','大参林（漯河）','大参林（佛山）'];
+const SC={'大参林医药集团':'广州市','大参林（广州）':'广州市','大参林（漯河）':'漯河市','大参林（佛山）':'佛山市'};
+function sh(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* 按月份生成数据：2026-03 有完整86条，历史月份数据量递减 */
+const MONTH_DATA={};
+function genData(month,total){
+  const ctd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.49);i++)a.push('增员');for(let i=0;i<Math.round(total*0.33);i++)a.push('减员');for(let i=0;i<Math.round(total*0.08);i++)a.push('补缴');while(a.length<total)a.push('调基');return sh(a);})();
+  const srd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.74);i++)a.push('月度工单');for(let i=0;i<Math.round(total*0.19);i++)a.push('异地申请');while(a.length<total)a.push('紧急工单');return sh(a);})();
+  const std=(()=>{const a=[];for(let i=0;i<Math.round(total*0.29);i++)a.push('待审核');for(let i=0;i<Math.round(total*0.05);i++)a.push('待申报');for(let i=0;i<Math.round(total*0.03);i++)a.push('申报失败');while(a.length<total)a.push('申报成功');return sh(a);})();
+  function mkR(st,ri){
+    if(st==='待审核')return[];
+    if(st==='待申报')return ri.map(n=>({n,s:'待申报'}));
+    if(st==='申报失败'){const fi=new Set([0]);if(ri.length>2)fi.add(1);return ri.map((n,i)=>({n,s:fi.has(i)?'申报失败':'申报成功'}));}
+    return ri.map(n=>({n,s:'申报成功'}));
+  }
+  const rows=[];
+  for(let i=0;i<total;i++){
+    const ct=ctd[i],src=srd[i],st=std[i],sj=SJ[i%4],city=SC[sj],idx=i%8,ins=INS_SETS[idx],ri=INS_RPA[idx],rpa=mkR(st,ri),ap=st==='待审核'?'待审核':'审核通过',pfx=sj.includes('广州')?'GZ':sj.includes('漯河')?'LH':sj.includes('佛山')?'FS':'HQ',hg=ins.includes('住房公积金');
+    rows.push({seq:i+1,emp:`EMP${String(10000+i).padStart(5,'0')}`,name:NS[i%NS.length],d1:'大参林',d2:i%2===0?'零售事业部':'职能中心',d3:i%3===0?'华南区':i%3===1?'华中区':'职能部门',dept:DP[i%DP.length],证件类型:'居民身份证',证件号:`4401011${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%15}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,人员类别:'正式员工',用工形式:'全职',特定人员:'',职等:`L${(i%5)+2}`,社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,特定工伤主体:'',参保状态:st==='申报成功'?'已缴纳':'未缴纳',参保形式:src==='异地申请'?'异地参保':'正常参保',参保地:city,原参保地:src==='异地申请'?'广州市':'',申请参保地:src==='异地申请'?city:'',参保险种:ins,公积金比例:hg?'12%':'',社保基数:String([5000,6000,7000,8000,9000,10000,12000][i%7]),公积金基数:hg?String([5000,6000,8000,10000][i%4]):'',change_type:ct,增员时间:ct==='增员'?month:'',减员时间:ct==='减员'?month:'',减员原因:ct==='减员'?['主动离职','合同到期','协议解除'][i%3]:'',调基时间:ct==='调基'?month:'',补缴开始:ct==='补缴'?month:'',补缴结束:ct==='补缴'?month:'',补缴原因:ct==='补缴'?'上月申报失败':'',source:src,approve_status:ap,确认时间:ap==='审核通过'?`${month}-${String((i%9)+1).padStart(2,'0')}`:'',ticket_month:month,rpa_items:rpa,rpa_remark:aF(rpa)?['证件号不匹配','减员时间超截止','公积金账户异常'][i%3]:'',附件:ap==='审核通过'&&st!=='待申报'?[`RZ-${String(i+1).padStart(3,'0')}.jpg`]:[],isErr:aF(rpa)});
+  }
+  return rows;
+}
+
+/* 各月数据量 */
+const MONTH_TOTALS={'2026-03':86,'2026-02':74,'2026-01':68,'2025-12':91,'2025-11':63,'2025-10':57};
+Object.keys(MONTH_TOTALS).forEach(m=>{MONTH_DATA[m]=genData(m,MONTH_TOTALS[m]);});
+
+const DA=[{id:'A1',month:'2026-03',name:'大参林医药集团',sys_type:'社保系统',地:'广州市',payUuid:'PAY-2603-001',createTime:'2026-03-08',pay_state:'已缴费',remark:'',amount:'¥128,420',cnt:42,diff:'无差异',confirmTime:'2026-03-09',deductDate:'2026-03-10',lnj:'',files:[{name:'数据源文件.xlsx',t:1},{name:'缴费凭证.pdf',t:2}],isErr:false},{id:'A2',month:'2026-03',name:'大参林医药集团',sys_type:'公积金系统',地:'广州市',payUuid:'PAY-2603-002',createTime:'2026-03-08',pay_state:'未核对',remark:'金额与核定不一致',amount:'¥96,300',cnt:42,diff:'有差异',confirmTime:'',deductDate:'',lnj:'',files:[{name:'数据源文件.xlsx',t:1}],isErr:true},{id:'A3',month:'2026-03',name:'大参林（广州）',sys_type:'社保系统',地:'广州市',payUuid:'PAY-2603-003',createTime:'2026-03-08',pay_state:'已缴费',remark:'',amount:'¥84,210',cnt:31,diff:'无差异',confirmTime:'2026-03-09',deductDate:'2026-03-10',lnj:'',files:[{name:'数据源文件.xlsx',t:1},{name:'缴费凭证.pdf',t:2}],isErr:false},{id:'A4',month:'2026-03',name:'大参林（广州）',sys_type:'公积金系统',地:'广州市',payUuid:'PAY-2603-004',createTime:'2026-03-08',pay_state:'已核定未缴费',remark:'',amount:'¥63,080',cnt:31,diff:'无差异',confirmTime:'2026-03-09',deductDate:'',lnj:'',files:[{name:'数据源文件.xlsx',t:1}],isErr:false},{id:'A5',month:'2026-03',name:'大参林（漯河）',sys_type:'社保系统',地:'漯河市',payUuid:'PAY-2603-005',createTime:'2026-03-09',pay_state:'已缴费',remark:'',amount:'¥31,640',cnt:13,diff:'无差异',confirmTime:'2026-03-10',deductDate:'2026-03-11',lnj:'',files:[{name:'数据源文件.xlsx',t:1},{name:'缴费凭证.pdf',t:2}],isErr:false},{id:'A6',month:'2026-03',name:'大参林（漯河）',sys_type:'公积金系统',地:'漯河市',payUuid:'PAY-2603-006',createTime:'2026-03-09',pay_state:'缴费异常',remark:'账户余额不足',amount:'¥24,890',cnt:13,diff:'无差异',confirmTime:'2026-03-10',deductDate:'',lnj:'¥120',files:[{name:'数据源文件.xlsx',t:1}],isErr:true},{id:'A7',month:'2026-03',name:'大参林（佛山）',sys_type:'社保系统',地:'佛山市',payUuid:'',createTime:'',pay_state:'未核对',remark:'',amount:'',cnt:0,diff:'',confirmTime:'',deductDate:'',lnj:'',files:[],isErr:false},{id:'A8',month:'2026-03',name:'大参林（佛山）',sys_type:'公积金系统',地:'佛山市',payUuid:'',createTime:'',pay_state:'未核对',remark:'',amount:'',cnt:0,diff:'',confirmTime:'',deductDate:'',lnj:'',files:[],isErr:false}];
+const DE=[{ai:'A1',emp:'EMP10001',name:'梁文博',sm:'大参林医药集团',gm:'大参林医药集团',fm:'大参林医药集团',cc:'CC-HQ-002',dept:'智慧人力组',jd:'L4',ly:'在保人员',bf:'正常参保',bd:'广州市',bx:'基本养老保险、基本医疗保险、失业保险、工伤保险',sb:8000,ydw:640,ydr:160,sydw:80,sydr:20,yldw:400,yldr:200,gsdw:80,scsdw:60,hldw:0,dbdw:0,swdwh:1260,swdrh:380,swh:1640,gjjj:'',gjjdw:'',gjjdr:'',bs:'已缴纳',bsh:'已缴纳'},{ai:'A1',emp:'EMP10006',name:'李欢欢',sm:'大参林医药集团',gm:'大参林医药集团',fm:'大参林医药集团',cc:'CC-HQ-006',dept:'行政产品组',jd:'L5',ly:'在保人员',bf:'正常参保',bd:'广州市',bx:'基本养老保险、基本医疗保险、失业保险、工伤保险',sb:12000,ydw:960,ydr:240,sydw:120,sydr:30,yldw:600,yldr:300,gsdw:120,scsdw:90,hldw:0,dbdw:0,swdwh:1890,swdrh:570,swh:2460,gjjj:'',gjjdw:'',gjjdr:'',bs:'已缴纳',bsh:'已缴纳'},{ai:'A2',emp:'EMP10001',name:'梁文博',sm:'大参林医药集团',gm:'大参林医药集团',fm:'大参林医药集团',cc:'CC-HQ-002',dept:'智慧人力组',jd:'L4',ly:'在保人员',bf:'正常参保',bd:'广州市',bx:'住房公积金',sb:'',ydw:'',ydr:'',sydw:'',sydr:'',yldw:'',yldr:'',gsdw:'',scsdw:'',hldw:'',dbdw:'',swdwh:'',swdrh:'',swh:'',gjjj:8000,gjjdw:960,gjjdr:960,bs:'未缴纳',bsh:'未缴纳'},{ai:'A3',emp:'EMP10000',name:'谭艳韵',sm:'大参林（广州）',gm:'大参林（广州）',fm:'大参林（广州）',cc:'CC-GZ-001',dept:'01130店广州礼岗',jd:'L3',ly:'增员',bf:'正常参保',bd:'广州市',bx:'基本养老保险、基本医疗保险、失业保险、工伤保险',sb:6000,ydw:480,ydr:120,sydw:60,sydr:15,yldw:300,yldr:150,gsdw:60,scsdw:45,hldw:0,dbdw:0,swdwh:945,swdrh:285,swh:1230,gjjj:'',gjjdw:'',gjjdr:'',bs:'已缴纳',bsh:'已缴纳'},{ai:'A5',emp:'EMP10003',name:'路明非',sm:'大参林（漯河）',gm:'大参林（漯河）',fm:'大参林（漯河）',cc:'CC-LH-001',dept:'01100店漯河前周',jd:'L3',ly:'增员',bf:'异地参保',bd:'漯河市',bx:'基本养老保险、基本医疗保险、失业保险、工伤保险',sb:5000,ydw:400,ydr:100,sydw:50,sydr:12,yldw:250,yldr:125,gsdw:50,scsdw:37,hldw:0,dbdw:0,swdwh:787,swdrh:237,swh:1024,gjjj:'',gjjdw:'',gjjdr:'',bs:'已缴纳',bsh:'已缴纳'},{ai:'A6',emp:'EMP10003',name:'路明非',sm:'大参林（漯河）',gm:'大参林（漯河）',fm:'大参林（漯河）',cc:'CC-LH-001',dept:'01100店漯河前周',jd:'L3',ly:'在保人员',bf:'异地参保',bd:'漯河市',bx:'住房公积金',sb:'',ydw:'',ydr:'',sydw:'',sydr:'',yldw:'',yldr:'',gsdw:'',scsdw:'',hldw:'',dbdw:'',swdwh:'',swdrh:'',swh:'',gjjj:5000,gjjdw:600,gjjdr:600,bs:'未缴纳',bsh:'未缴纳'}];
+const D2=[{time:'2026-03-05 14:22',ft:'申报失败',emp:'EMP10000',name:'谭艳韵',sm:'大参林（广州）',gm:'大参林（广州）',fm:'大参林（广州）',cc:'CC-GZ-001',bx:'基本养老保险、基本医疗保险',ct:'增员',sblx:'增员',batch:'B20260305001',rr:'基本养老保险申报失败、基本医疗保险申报失败',rs:'证件号与社保系统不匹配',jfzt:'',jfbz:'',jscy:'',month:'2026-03',isErr:true},{time:'2026-03-06 09:41',ft:'申报失败',emp:'EMP10007',name:'张三丰',sm:'大参林（广州）',gm:'大参林（广州）',fm:'大参林（广州）',cc:'CC-GZ-007',bx:'工伤保险',ct:'减员',sblx:'减员',batch:'B20260306002',rr:'工伤保险申报失败',rs:'减员时间超出申报截止',jfzt:'',jfbz:'',jscy:'',month:'2026-03',isErr:true},{time:'2026-03-08 16:03',ft:'申报失败',emp:'EMP10012',name:'王小明',sm:'大参林医药集团',gm:'大参林医药集团',fm:'大参林医药集团',cc:'CC-HQ-010',bx:'住房公积金',ct:'增员',sblx:'增员',batch:'B20260308003',rr:'住房公积金申报失败',rs:'公积金账户状态异常',jfzt:'',jfbz:'',jscy:'',month:'2026-03',isErr:true}];
+
+let card=0,vt='全部',pg=1,ea=new Set(),df='';
+const CF=[
+  {tabs:['全部','审核通过','待审核','待申报','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'导出',c:''}]},
+  {tabs:['全部','差异待确认','缴费异常','已缴费','费用明细台账'],ac:[{l:'核定缴费完成',c:'blue'},{l:'导出',c:''}]},
+  {tabs:['全部','申报失败','缴费失败'],ac:[{l:'导出',c:''}]},
+];
+
+function sw(i){card=i;vt='全部';pg=1;ea=new Set();df='';document.querySelectorAll('.card').forEach((c,j)=>c.classList.toggle('cur',i===j));render();}
+function svt(t){vt=t;pg=1;df='';ea=new Set();render();}
+function clearAll(){
+  pg=1;df='';ea=new Set();vt='全部';
+  document.getElementById('smonth').value='2026-03';
+  ['sn','se'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['sunit','sct','ssj','sgj','ss','sft'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  render();
+}
+function goP(p){pg=p;render();}
+function tA(id){ea.has(id)?ea.delete(id):ea.add(id);render();}
+function gD(ai){vt='费用明细台账';df=ai;pg=1;render();}
+
+function render(){
+  const month=getV('smonth');
+  const monthData=MONTH_DATA[month]||[];
+  const total=monthData.length;
+
+  // 更新看板卡片数字
+  const apCnt=monthData.filter(r=>r.approve_status==='审核通过').length;
+  const pendCnt=monthData.filter(r=>r.approve_status==='待审核').length;
+  const incCnt=monthData.filter(r=>r.change_type==='增员').length;
+  const decCnt=monthData.filter(r=>r.change_type==='减员').length;
+  const bakCnt=monthData.filter(r=>r.change_type==='补缴').length;
+  const adjCnt=monthData.filter(r=>r.change_type==='调基').length;
+  document.getElementById('cn0').textContent=total;
+  document.getElementById('cs0').textContent=`增员${incCnt} · 减员${decCnt} · 补缴${bakCnt} · 调基${adjCnt}`;
+
+  // 已选条件
+  const labels={smonth:'月份',sn:'员工姓名',se:'员工号',sunit:'单位名称',sct:'变动类型',ssj:'社保主体',sgj:'公积金主体',ss:'申报系统',sft:'失败类型'};
+  const pts=Object.entries(labels).map(([id,lbl])=>{const v=getV(id);return v?`${lbl}: ${v}`:null;}).filter(Boolean);
+  if(vt!=='全部')pts.push(vt);
+  document.getElementById('co').textContent='已选条件：'+(pts.length?pts.join(' · '):'空');
+
+  if(card===0)rC(monthData);else if(card===1)rP(month);else rF(month);
+}
+
+function tabWithCount(tabs,data){
+  const counts={
+    '全部':data.length,
+    '审核通过':data.filter(r=>r.approve_status==='审核通过').length,
+    '待审核':data.filter(r=>r.approve_status==='待审核').length,
+    '待申报':data.filter(r=>r.approve_status==='审核通过'&&aP(r.rpa_items)).length,
+    '申报失败':data.filter(r=>aF(r.rpa_items)).length,
+  };
+  return tabs.map(t=>`${t}(${counts[t]??0})`);
+}
+function tabWithCountPay(tabs,data){
+  const counts={'全部':data.length,'差异待确认':data.filter(a=>a.diff==='有差异').length,'缴费异常':data.filter(a=>a.pay_state==='缴费异常').length,'已缴费':data.filter(a=>a.pay_state==='已缴费').length,'费用明细台账':'-'};
+  return tabs.map(t=>`${t}(${counts[t]??0})`);
+}
+function tabWithCountFail(tabs,data){
+  const counts={'全部':data.length,'申报失败':data.filter(r=>r.ft==='申报失败').length,'缴费失败':data.filter(r=>r.ft==='缴费失败').length};
+  return tabs.map(t=>`${t}(${counts[t]??0})`);
+}
+
+function ltHtml(tabsWithCount,c){
+  const th=tabsWithCount.map(x=>{
+    const xl=x.replace(/\(\d+\)/,'').replace(/\(-\)/,'').trim();
+    const vl=vt;
+    const isCur=xl===vl;
+    return`<div class="vt${isCur?' cur':''}" onclick="svt('${xl}')">${x}</div>`;
+  }).join('');
+  const ah=c.ac.map(a=>`<button class="abtn${a.c?' '+a.c:''}">${a.l}</button>`).join('');
+  return`<div class="list-top"><div class="vts">${th}</div><div class="act-row">${ah}</div></div>`;
+}
+function pgHtml(tot,PZ){
+  const pages=Math.ceil(tot/PZ)||1;
+  let h=`<div class="pg-wrap"><span class="pg-txt">共 ${tot} 条</span>`;
+  h+=`<button class="pb" onclick="goP(${pg-1})" ${pg<=1?'disabled':''}>‹</button>`;
+  const s=Math.max(1,pg-2),e=Math.min(pages,pg+2);
+  if(s>1){h+=`<button class="pb" onclick="goP(1)">1</button>`;if(s>2)h+=`<span style="padding:0 4px;color:#bfbfbf">···</span>`;}
+  for(let i=s;i<=e;i++)h+=`<button class="pb${i===pg?' cur':''}" onclick="goP(${i})">${i}</button>`;
+  if(e<pages){if(e<pages-1)h+=`<span style="padding:0 4px;color:#bfbfbf">···</span>`;h+=`<button class="pb" onclick="goP(${pages})">${pages}</button>`;}
+  h+=`<button class="pb" onclick="goP(${pg+1})" ${pg>=pages?'disabled':''}>›</button>`;
+  h+=`<select class="pg-size"><option>20 条/页</option></select>`;
+  h+=`<div class="pg-jump">跳至 <input type="number" min="1" max="${pages}" value="${pg}" onchange="goP(parseInt(this.value)||1)"/> 页</div>`;
+  return h+'</div>';
+}
+
+const CC=['','序号','所属月份','员工号','姓名','一级部门','二级部门','三级部门','部门名称','证件类型','证件号','性别','民族','出生日期','人员类别','用工形式','特定人员类型','职等','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','社保基数','公积金基数','变动类型','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因','数据来源','待办审批状态','名单确认时间','RPA申报结果','RPA申报结果备注','附件','上传附件'];
+
+function rC(monthData){
+  const s1=getV('sn'),s2=getV('se'),su=getV('sunit'),sct=getV('sct'),ssj=getV('ssj'),sgj=getV('sgj');
+  const data=monthData.filter(r=>{
+    if(s1&&!r.name.includes(s1))return false;
+    if(s2&&!r.emp.toLowerCase().includes(s2.toLowerCase()))return false;
+    if(su&&r.社保主体!==su&&r.公积金主体!==su&&r.费用主体!==su)return false;
+    if(sct&&r.change_type!==sct)return false;
+    if(ssj&&r.社保主体!==ssj)return false;
+    if(sgj&&r.公积金主体!==sgj)return false;
+    if(vt==='审核通过'&&r.approve_status!=='审核通过')return false;
+    if(vt==='待审核'&&r.approve_status!=='待审核')return false;
+    if(vt==='待申报'&&!(r.approve_status==='审核通过'&&aP(r.rpa_items)))return false;
+    if(vt==='申报失败'&&!aF(r.rpa_items))return false;
+    return true;
+  });
+  const tabsWC=tabWithCount(CF[0].tabs,monthData.filter(r=>{
+    const su2=getV('sunit'),sct2=getV('sct'),ssj2=getV('ssj'),sgj2=getV('sgj');
+    if(su2&&r.社保主体!==su2&&r.公积金主体!==su2)return false;
+    if(sct2&&r.change_type!==sct2)return false;
+    if(ssj2&&r.社保主体!==ssj2)return false;
+    if(sgj2&&r.公积金主体!==sgj2)return false;
+    return true;
+  }));
+  const tot=data.length,PZ=10,mp=Math.ceil(tot/PZ)||1;
+  if(pg>mp)pg=1;
+  const sl=data.slice((pg-1)*PZ,pg*PZ);
+  document.getElementById('la').innerHTML=`${ltHtml(tabsWC,CF[0])}
+    <div class="rbar"><span class="rc">共 ${tot} 条记录</span></div>
+    <div class="tw"><table>
+      <colgroup>
+        <col style="width:32px"><col style="width:40px"><col style="width:64px"><col style="width:90px"><col style="width:64px">
+        <col style="width:52px"><col style="width:72px"><col style="width:72px"><col style="width:104px">
+        <col style="width:72px"><col style="width:112px"><col style="width:36px"><col style="width:36px"><col style="width:82px">
+        <col style="width:64px"><col style="width:52px"><col style="width:80px"><col style="width:40px">
+        <col style="width:100px"><col style="width:100px"><col style="width:100px"><col style="width:80px"><col style="width:80px">
+        <col style="width:56px"><col style="width:60px"><col style="width:60px"><col style="width:62px"><col style="width:68px">
+        <col style="width:300px"><col style="width:72px"><col style="width:58px"><col style="width:58px">
+        <col style="width:52px"><col style="width:60px"><col style="width:60px"><col style="width:80px">
+        <col style="width:60px"><col style="width:72px"><col style="width:72px"><col style="width:80px">
+        <col style="width:64px"><col style="width:72px"><col style="width:82px">
+        <col style="width:220px"><col style="width:120px"><col style="width:80px"><col style="width:72px">
+      </colgroup>
+      <thead><tr>${CC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${sl.length?sl.map(r=>`<tr class="${r.isErr?'er':''}">
+        <td><input type="checkbox"/></td><td style="color:#8c8c8c">${r.seq}</td>
+        <td style="color:#8c8c8c">${r.ticket_month}</td>
+        <td style="color:#8c8c8c">${r.emp}</td><td style="font-weight:500;color:#1890ff;cursor:pointer">${r.name}</td>
+        <td>${r.d1}</td><td>${r.d2}</td><td>${r.d3}</td><td>${r.dept}</td>
+        <td>${r.证件类型}</td><td style="color:#8c8c8c">${r.证件号}</td>
+        <td>${r.性别}</td><td>${r.民族}</td><td style="color:#8c8c8c">${r.出生日期}</td>
+        <td>${r.人员类别}</td><td>${r.用工形式}</td><td>${tx(r.特定人员)}</td><td>${r.职等}</td>
+        <td>${r.社保主体}</td><td>${r.公积金主体}</td><td>${r.费用主体}</td>
+        <td style="color:#8c8c8c">${r.成本中心}</td><td>${tx(r.特定工伤主体)}</td>
+        <td>${tag(r.参保状态)}</td><td>${tag(r.参保形式)}</td><td>${r.参保地}</td>
+        <td>${tx(r.原参保地)}</td><td>${tx(r.申请参保地)}</td>
+        <td title="${r.参保险种}" style="overflow:hidden;text-overflow:ellipsis">${r.参保险种}</td>
+        <td>${tx(r.公积金比例)}</td><td>${r.社保基数}</td><td>${tx(r.公积金基数)}</td>
+        <td>${tag(r.change_type)}</td>
+        <td>${tx(r.增员时间)}</td><td>${tx(r.减员时间)}</td><td style="color:#8c8c8c">${tx(r.减员原因)}</td>
+        <td>${tx(r.调基时间)}</td><td>${tx(r.补缴开始)}</td><td>${tx(r.补缴结束)}</td><td style="color:#8c8c8c">${tx(r.补缴原因)}</td>
+        <td>${tag(r.source)}</td><td>${tag(r.approve_status)}</td>
+        <td style="color:#8c8c8c">${tx(r.确认时间)}</td>
+        <td>${rh(r.rpa_items)}</td>
+        <td style="color:#f5222d;overflow:hidden;text-overflow:ellipsis;max-width:120px">${tx(r.rpa_remark)}</td>
+        <td>${r.附件.length?r.附件.map(f=>`<span class="ft">📎 ${f}</span>`).join(' '):''}</td>
+        <td><button class="ub">上传附件</button></td>
+      </tr>`).join(''):`<tr><td colspan="${CC.length}" class="emp-cell">暂无数据</td></tr>`}
+      </tbody>
+    </table></div>${pgHtml(tot,PZ)}`;
+}
+
+const AC=['','缴费月份','单位名称','申报系统','参保地','缴费单ID','创建时间','缴费单状态','缴费单备注','缴费总金额','缴费人数','系统计算差异','核定缴费时间','实际扣款日期','滞纳金','附件（接口回传）','操作'];
+const EC=['员工号','姓名','社保主体','公积金主体','费用主体','成本中心','部门','职等','来源','参保形式','参保地','参保险种','社保基数','养老单位','养老个人','失业单位','失业个人','医疗单位','医疗个人','工伤单位','生育单位','长护单位','大病单位','社保单位合计','社保个人合计','社保合计','公积金基数','公积金单位','公积金个人','参保状态','缴费回写'];
+
+function rP(month){
+  const tl=vt;
+  if(tl==='费用明细台账'){rD();return;}
+  const su=getV('sunit'),ss=getV('ss');
+  const accts=DA.filter(a=>{
+    if(a.month!==month)return false;
+    if(su&&a.name!==su)return false;
+    if(ss&&a.sys_type!==ss)return false;
+    if(tl==='差异待确认'&&a.diff!=='有差异')return false;
+    if(tl==='缴费异常'&&a.pay_state!=='缴费异常')return false;
+    if(tl==='已缴费'&&a.pay_state!=='已缴费')return false;
+    return true;
+  });
+  const tabsWC=tabWithCountPay(CF[1].tabs,DA.filter(a=>a.month===month));
+  const tot=accts.length,PZ=8,mp=Math.ceil(tot/PZ)||1;
+  if(pg>mp)pg=1;
+  const sl=accts.slice((pg-1)*PZ,pg*PZ);
+  let rows='';
+  sl.forEach(a=>{
+    const ex=ea.has(a.id);
+    const fh=a.files.length?a.files.map(f=>`<span class="ft">${f.t===2?'📜':'📊'} ${f.name}</span>`).join(' '):'';
+    rows+=`<tr class="acr${a.isErr?' er':''}" onclick="tA('${a.id}')">
+      <td style="color:#1890ff;font-size:12px;width:32px">${ex?'▾':'▸'}</td>
+      <td>${a.month}</td><td style="font-weight:500">${a.name}</td>
+      <td>${tag(a.sys_type)}</td><td>${a.地}</td>
+      <td style="color:#8c8c8c;font-size:12px">${tx(a.payUuid)}</td>
+      <td style="color:#8c8c8c">${tx(a.createTime)}</td>
+      <td>${tag(a.pay_state)}</td>
+      <td style="color:#f5222d">${tx(a.remark)}</td>
+      <td style="font-weight:600">${tx(a.amount)}</td><td>${a.cnt||''}</td>
+      <td>${tag(a.diff)}</td>
+      <td style="color:#8c8c8c">${tx(a.confirmTime)}</td>
+      <td style="color:#8c8c8c">${tx(a.deductDate)}</td>
+      <td>${tx(a.lnj)}</td><td>${fh}</td>
+      <td onclick="event.stopPropagation()"><button class="al" onclick="gD('${a.id}')">查看明细</button></td>
+    </tr>`;
+    if(ex){
+      const em=DE.filter(e=>e.ai===a.id);
+      rows+=`<tr><td colspan="${AC.length}" style="padding:0;border-bottom:1px solid #f0f0f0;">
+        <div class="sub-wrap"><div class="sub-label">员工费用明细 · ${a.name} · ${a.sys_type}</div>
+        <div class="sub-scroll"><table class="sub-tbl"><thead><tr>${EC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${em.length?em.map(e=>`<tr>
+          <td style="color:#8c8c8c">${e.emp}</td><td style="font-weight:500">${e.name}</td>
+          <td>${e.sm}</td><td>${e.gm}</td><td>${e.fm}</td>
+          <td style="color:#8c8c8c">${e.cc}</td><td style="color:#8c8c8c">${e.dept}</td><td>${e.jd}</td>
+          <td>${tag(e.ly)}</td><td>${tag(e.bf)}</td><td>${e.bd}</td>
+          <td title="${e.bx}" style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${e.bx}</td>
+          <td>${e.sb}</td><td>${tx(e.ydw)}</td><td>${tx(e.ydr)}</td>
+          <td>${tx(e.sydw)}</td><td>${tx(e.sydr)}</td><td>${tx(e.yldw)}</td><td>${tx(e.yldr)}</td>
+          <td>${tx(e.gsdw)}</td><td>${tx(e.scsdw)}</td><td>${tx(e.hldw)}</td><td>${tx(e.dbdw)}</td>
+          <td style="font-weight:600">${tx(e.swdwh)}</td><td style="font-weight:600">${tx(e.swdrh)}</td><td style="font-weight:600">${tx(e.swh)}</td>
+          <td>${tx(e.gjjj)}</td><td>${tx(e.gjjdw)}</td><td>${tx(e.gjjdr)}</td>
+          <td>${tag(e.bs)}</td><td>${tag(e.bsh)}</td>
+        </tr>`).join(''):`<tr><td colspan="${EC.length}" class="emp-cell" style="font-size:12px">暂无明细</td></tr>`}
+        </tbody></table></div></div>
+      </td></tr>`;
+    }
+  });
+  document.getElementById('la').innerHTML=`${ltHtml(tabsWC,CF[1])}
+    <div class="rbar"><span class="rc">共 ${tot} 条账户记录</span></div>
+    <div class="tw"><table><thead><tr>${AC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows||`<tr><td colspan="${AC.length}" class="emp-cell">暂无数据</td></tr>`}</tbody></table></div>
+    ${pgHtml(tot,PZ)}`;
+}
+
+function rD(){
+  const su=getV('sunit'),s1=getV('sn');
+  const data=DE.filter(e=>{if(df&&e.ai!==df)return false;if(su&&e.sm!==su&&e.gm!==su)return false;if(s1&&!e.name.includes(s1))return false;return true;});
+  const tot=data.length,PZ=10,mp=Math.ceil(tot/PZ)||1;
+  if(pg>mp)pg=1;
+  const sl=data.slice((pg-1)*PZ,pg*PZ);
+  const ac=df?DA.find(a=>a.id===df):null;
+  document.getElementById('la').innerHTML=`${ltHtml(tabWithCountPay(CF[1].tabs,DA),CF[1])}
+    <div class="rbar">
+      ${df?`<button class="abtn" onclick="df='';render()" style="margin-right:4px">← 返回账户列表</button>`:''}
+      <span class="rc">共 ${tot} 条员工明细${ac?` · ${ac.name} · ${ac.sys_type}`:' · 全量'}</span>
+    </div>
+    <div class="tw"><table><thead><tr>${EC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${sl.length?sl.map(e=>`<tr>
+      <td style="color:#8c8c8c">${e.emp}</td><td style="font-weight:500">${e.name}</td>
+      <td>${e.sm}</td><td>${e.gm}</td><td>${e.fm}</td>
+      <td style="color:#8c8c8c">${e.cc}</td><td style="color:#8c8c8c">${e.dept}</td><td>${e.jd}</td>
+      <td>${tag(e.ly)}</td><td>${tag(e.bf)}</td><td>${e.bd}</td>
+      <td title="${e.bx}" style="max-width:180px;overflow:hidden;text-overflow:ellipsis">${e.bx}</td>
+      <td>${e.sb}</td><td>${tx(e.ydw)}</td><td>${tx(e.ydr)}</td>
+      <td>${tx(e.sydw)}</td><td>${tx(e.sydr)}</td><td>${tx(e.yldw)}</td><td>${tx(e.yldr)}</td>
+      <td>${tx(e.gsdw)}</td><td>${tx(e.scsdw)}</td><td>${tx(e.hldw)}</td><td>${tx(e.dbdw)}</td>
+      <td style="font-weight:600">${tx(e.swdwh)}</td><td style="font-weight:600">${tx(e.swdrh)}</td><td style="font-weight:600">${tx(e.swh)}</td>
+      <td>${tx(e.gjjj)}</td><td>${tx(e.gjjdw)}</td><td>${tx(e.gjjdr)}</td>
+      <td>${tag(e.bs)}</td><td>${tag(e.bsh)}</td>
+    </tr>`).join(''):`<tr><td colspan="${EC.length}" class="emp-cell">暂无数据</td></tr>`}
+    </tbody></table></div>${pgHtml(tot,PZ)}`;
+}
+
+const FC=['失败时间','失败类型','员工号','姓名','社保主体','公积金主体','费用主体','成本中心','参保险种','变动类型','申报类型','RPA批次号','RPA申报结果','失败原因','缴费单状态','缴费单备注','系统计算差异'];
+function rF(month){
+  const s1=getV('sn'),s2=getV('se'),su=getV('sunit'),sft=getV('sft'),sct=getV('sct');
+  const allFail=D2.filter(r=>r.month===month);
+  const data=allFail.filter(r=>{
+    if(s1&&!r.name.includes(s1))return false;
+    if(s2&&!r.emp.toLowerCase().includes(s2.toLowerCase()))return false;
+    if(su&&r.sm!==su&&r.gm!==su)return false;
+    if(sft&&r.ft!==sft)return false;
+    if(sct&&r.ct!==sct)return false;
+    if(vt==='申报失败'&&r.ft!=='申报失败')return false;
+    if(vt==='缴费失败'&&r.ft!=='缴费失败')return false;
+    return true;
+  });
+  const tabsWC=tabWithCountFail(CF[2].tabs,allFail);
+  const tot=data.length,PZ=6,sl=data.slice((pg-1)*PZ,pg*PZ);
+  document.getElementById('la').innerHTML=`${ltHtml(tabsWC,CF[2])}
+    <div class="rbar"><span class="rc">共 ${tot} 条记录</span></div>
+    <div class="tw"><table><thead><tr>${FC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${sl.length?sl.map(r=>`<tr class="er">
+      <td style="color:#8c8c8c">${r.time}</td><td>${tag(r.ft)}</td>
+      <td style="color:#8c8c8c">${r.emp}</td><td style="font-weight:500">${r.name}</td>
+      <td>${r.sm}</td><td>${r.gm}</td><td>${r.fm}</td>
+      <td style="color:#8c8c8c">${r.cc}</td>
+      <td title="${r.bx}" style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${r.bx}</td>
+      <td>${tag(r.ct)}</td><td>${tag(r.sblx)}</td>
+      <td style="color:#8c8c8c;font-size:12px">${r.batch}</td>
+      <td style="color:#8c8c8c;max-width:150px;overflow:hidden;text-overflow:ellipsis">${r.rr}</td>
+      <td style="color:#f5222d;max-width:160px;overflow:hidden;text-overflow:ellipsis">${r.rs}</td>
+      <td>${tx(r.jfzt)}</td><td>${tx(r.jfbz)}</td><td>${tx(r.jscy)}</td>
+    </tr>`).join(''):`<tr><td colspan="${FC.length}" class="emp-cell">暂无数据</td></tr>`}
+    </tbody></table></div>${pgHtml(tot,PZ)}`;
+}
+
+render();
+</script>
