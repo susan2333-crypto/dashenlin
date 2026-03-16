@@ -162,7 +162,7 @@ tr.acr{cursor:pointer;}
 function getV(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 function tag(v){
   if(!v)return'';
-  const M={增员:'t-blue',减员:'t-gray',补缴:'t-orange',调基:'t-teal',月度工单:'t-gray',异地申请:'t-teal',紧急工单:'t-orange',待审核:'t-orange',审核通过:'t-green',已缴费:'t-green',已核定未缴费:'t-orange',缴费异常:'t-red',未核对:'t-gray',无差异:'t-green',有差异:'t-orange',社保系统:'t-blue',公积金系统:'t-teal',正常参保:'t-blue',异地参保:'t-purple',未缴纳:'t-orange',已缴纳:'t-green',已停保:'t-gray',在保人员:'t-gray'};
+  const M={增员:'t-blue',减员:'t-gray',补缴:'t-orange',调基:'t-teal',月度工单:'t-gray',异地申请:'t-teal',紧急工单:'t-orange',待审核:'t-orange',审核通过:'t-green',截止自动通过:'t-green',已退回:'t-orange',已缴费:'t-green',已核定未缴费:'t-orange',缴费异常:'t-red',未核对:'t-gray',无差异:'t-green',有差异:'t-orange',社保系统:'t-blue',公积金系统:'t-teal',正常参保:'t-blue',异地参保:'t-purple',未缴纳:'t-orange',已缴纳:'t-green',已停保:'t-gray',在保人员:'t-gray'};
   return`<span class="tag ${M[v]||'t-gray'}">${v}</span>`;
 }
 function tx(v){return(!v||v==='—')?'':v;}
@@ -190,16 +190,16 @@ const MONTH_DATA={};
 function genData(month,total){
   const ctd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.49);i++)a.push('增员');for(let i=0;i<Math.round(total*0.33);i++)a.push('减员');for(let i=0;i<Math.round(total*0.08);i++)a.push('补缴');while(a.length<total)a.push('调基');return sh(a);})();
   const srd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.74);i++)a.push('月度工单');for(let i=0;i<Math.round(total*0.19);i++)a.push('异地申请');while(a.length<total)a.push('紧急工单');return sh(a);})();
-  const std=(()=>{const a=[];for(let i=0;i<Math.round(total*0.29);i++)a.push('待审核');for(let i=0;i<Math.round(total*0.05);i++)a.push('待申报');for(let i=0;i<Math.round(total*0.03);i++)a.push('申报失败');while(a.length<total)a.push('申报成功');return sh(a);})();
+  const std=(()=>{const a=[];for(let i=0;i<Math.round(total*0.24);i++)a.push('待审核');for(let i=0;i<Math.round(total*0.05);i++)a.push('已退回');for(let i=0;i<Math.round(total*0.05);i++)a.push('待申报');for(let i=0;i<Math.round(total*0.03);i++)a.push('申报失败');while(a.length<total)a.push('申报成功');return sh(a);})();
   function mkR(st,ri){
-    if(st==='待审核')return[];
+    if(st==='待审核'||st==='已退回')return[];
     if(st==='待申报')return ri.map(n=>({n,s:'待申报'}));
     if(st==='申报失败'){const fi=new Set([0]);if(ri.length>2)fi.add(1);return ri.map((n,i)=>({n,s:fi.has(i)?'申报失败':'申报成功'}));}
     return ri.map(n=>({n,s:'申报成功'}));
   }
   const rows=[];
   for(let i=0;i<total;i++){
-    const ct=ctd[i],src=srd[i],st=std[i],sj=SJ[i%4],city=SC[sj],idx=i%8,ins=INS_SETS[idx],ri=INS_RPA[idx],rpa=mkR(st,ri),ap=st==='待审核'?'待审核':'审核通过',pfx=sj.includes('广州')?'GZ':sj.includes('漯河')?'LH':sj.includes('佛山')?'FS':'HQ',hg=ins.includes('住房公积金');
+    const ct=ctd[i],src=srd[i],st=std[i],sj=SJ[i%4],city=SC[sj],idx=i%8,ins=INS_SETS[idx],ri=INS_RPA[idx],rpa=mkR(st,ri),ap=st==='待审核'?'待审核':st==='已退回'?'已退回':'审核通过',pfx=sj.includes('广州')?'GZ':sj.includes('漯河')?'LH':sj.includes('佛山')?'FS':'HQ',hg=ins.includes('住房公积金');
     rows.push({seq:i+1,emp:`EMP${String(10000+i).padStart(5,'0')}`,name:NS[i%NS.length],d1:'大参林',d2:i%2===0?'零售事业部':'职能中心',d3:i%3===0?'华南区':i%3===1?'华中区':'职能部门',dept:DP[i%DP.length],证件类型:'居民身份证',证件号:`4401011${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%15}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,人员类别:'正式员工',用工形式:'全职',特定人员:'',职等:`L${(i%5)+2}`,社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,特定工伤主体:'',参保状态:st==='申报成功'?'已缴纳':'未缴纳',参保形式:src==='异地申请'?'异地参保':'正常参保',参保地:city,原参保地:src==='异地申请'?'广州市':'',申请参保地:src==='异地申请'?city:'',参保险种:ins,公积金比例:hg?'12%':'',社保基数:String([5000,6000,7000,8000,9000,10000,12000][i%7]),公积金基数:hg?String([5000,6000,8000,10000][i%4]):'',change_type:ct,增员时间:ct==='增员'?month:'',减员时间:ct==='减员'?month:'',减员原因:ct==='减员'?['主动离职','合同到期','协议解除'][i%3]:'',调基时间:ct==='调基'?month:'',补缴开始:ct==='补缴'?month:'',补缴结束:ct==='补缴'?month:'',补缴原因:ct==='补缴'?'上月申报失败':'',source:src,approve_status:ap,确认时间:ap==='审核通过'?`${month}-${String((i%9)+1).padStart(2,'0')}`:'',ticket_month:month,rpa_items:rpa,rpa_remark:aF(rpa)?['证件号不匹配','减员时间超截止','公积金账户异常'][i%3]:'',附件:ap==='审核通过'&&st!=='待申报'?[`RZ-${String(i+1).padStart(3,'0')}.jpg`]:[],isErr:aF(rpa)});
   }
   return rows;
@@ -215,7 +215,7 @@ const D2=[{time:'2026-03-05 14:22',ft:'申报失败',emp:'EMP10000',name:'谭艳
 
 let card=0,vt='全部',pg=1,ea=new Set(),df='';
 const CF=[
-  {tabs:['全部','审核通过','待审核','待申报','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'导出',c:''}]},
+  {tabs:['全部','待审核','已退回','审核通过','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'重新审核',c:''},{l:'导出',c:''}]},
   {tabs:['全部','差异待确认','缴费异常','已缴费','费用明细台账'],ac:[{l:'核定缴费完成',c:'blue'},{l:'导出',c:''}]},
   {tabs:['全部','申报失败','缴费失败'],ac:[{l:'导出',c:''}]},
 ];
@@ -260,9 +260,9 @@ function render(){
 function tabWithCount(tabs,data){
   const counts={
     '全部':data.length,
-    '审核通过':data.filter(r=>r.approve_status==='审核通过').length,
     '待审核':data.filter(r=>r.approve_status==='待审核').length,
-    '待申报':data.filter(r=>r.approve_status==='审核通过'&&aP(r.rpa_items)).length,
+    '已退回':data.filter(r=>r.approve_status==='已退回').length,
+    '审核通过':data.filter(r=>r.approve_status==='审核通过'||r.approve_status==='截止自动通过').length,
     '申报失败':data.filter(r=>aF(r.rpa_items)).length,
   };
   return tabs.map(t=>`${t}(${counts[t]??0})`);
@@ -283,7 +283,13 @@ function ltHtml(tabsWithCount,c){
     const isCur=xl===vl;
     return`<div class="vt${isCur?' cur':''}" onclick="svt('${xl}')">${x}</div>`;
   }).join('');
-  const ah=c.ac.map(a=>`<button class="abtn${a.c?' '+a.c:''}">${a.l}</button>`).join('');
+  const isReturnTab=vt==='已退回';
+  const isFailTab=vt==='申报失败';
+  const ah=c.ac.map(a=>{
+    if(a.l==='RPA申报（批量）'&&(isReturnTab||isFailTab))return'';
+    if(a.l==='重新审核'&&!isReturnTab)return'';
+    return`<button class="abtn${a.c?' '+a.c:''}">${a.l}</button>`;
+  }).join('');
   return`<div class="list-top"><div class="vts">${th}</div><div class="act-row">${ah}</div></div>`;
 }
 function pgHtml(tot,PZ){
@@ -311,9 +317,9 @@ function rC(monthData){
     if(sct&&r.change_type!==sct)return false;
     if(ssj&&r.社保主体!==ssj)return false;
     if(sgj&&r.公积金主体!==sgj)return false;
-    if(vt==='审核通过'&&r.approve_status!=='审核通过')return false;
     if(vt==='待审核'&&r.approve_status!=='待审核')return false;
-    if(vt==='待申报'&&!(r.approve_status==='审核通过'&&aP(r.rpa_items)))return false;
+    if(vt==='已退回'&&r.approve_status!=='已退回')return false;
+    if(vt==='审核通过'&&r.approve_status!=='审核通过'&&r.approve_status!=='截止自动通过')return false;
     if(vt==='申报失败'&&!aF(r.rpa_items))return false;
     return true;
   });
