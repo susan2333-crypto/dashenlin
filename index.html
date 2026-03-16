@@ -215,7 +215,7 @@ const D2=[{time:'2026-03-05 14:22',ft:'申报失败',emp:'EMP10000',name:'谭艳
 
 let card=0,vt='全部',pg=1,ea=new Set(),df='';
 const CF=[
-  {tabs:['全部','待审核','已退回','审核通过','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'重新审核',c:''},{l:'导出',c:''}]},
+  {tabs:['全部','待审核','已退回','审核通过','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'催办',c:''},{l:'重新审核',c:''},{l:'导出',c:''}]},
   {tabs:['全部','差异待确认','缴费异常','已缴费','费用明细台账'],ac:[{l:'核定缴费完成',c:'blue'},{l:'导出',c:''}]},
   {tabs:['全部','申报失败','缴费失败'],ac:[{l:'导出',c:''}]},
 ];
@@ -284,9 +284,11 @@ function ltHtml(tabsWithCount,c){
     return`<div class="vt${isCur?' cur':''}" onclick="svt('${xl}')">${x}</div>`;
   }).join('');
   const isReturnTab=vt==='已退回';
+  const isPendTab=vt==='待审核';
   const isFailTab=vt==='申报失败';
   const ah=c.ac.map(a=>{
-    if(a.l==='RPA申报（批量）'&&(isReturnTab||isFailTab))return'';
+    if(a.l==='RPA申报（批量）'&&(isReturnTab||isFailTab||isPendTab))return'';
+    if(a.l==='催办'&&!isPendTab)return'';
     if(a.l==='重新审核'&&!isReturnTab)return'';
     return`<button class="abtn${a.c?' '+a.c:''}">${a.l}</button>`;
   }).join('');
