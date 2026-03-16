@@ -306,7 +306,7 @@ function pgHtml(tot,PZ){
   return h+'</div>';
 }
 
-const CC=['','序号','所属月份','员工号','姓名','一级部门','二级部门','三级部门','部门名称','证件类型','证件号','性别','民族','出生日期','人员类别','用工形式','特定人员类型','职等','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','社保基数','公积金基数','变动类型','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因','数据来源','待办审批状态','审核建议','名单确认时间','RPA申报结果','RPA申报结果备注','附件','上传附件'];
+const CC=['','序号','所属月份','员工号','姓名','一级部门','二级部门','三级部门','部门名称','证件类型','证件号','性别','民族','出生日期','人员类别','用工形式','特定人员类型','职等','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','社保基数','公积金基数','变动类型','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因','数据来源','待办审批状态','审核建议','名单确认时间','RPA申报结果','RPA申报结果备注'];
 
 function rC(monthData){
   const s1=getV('sn'),s2=getV('se'),su=getV('sunit'),sct=getV('sct'),ssj=getV('ssj'),sgj=getV('sgj');
@@ -348,7 +348,7 @@ function rC(monthData){
         <col style="width:52px"><col style="width:60px"><col style="width:60px"><col style="width:80px">
         <col style="width:60px"><col style="width:72px"><col style="width:72px"><col style="width:80px">
         <col style="width:64px"><col style="width:72px"><col style="width:82px">
-        <col style="width:220px"><col style="width:140px"><col style="width:120px"><col style="width:80px"><col style="width:72px">
+        <col style="width:220px"><col style="width:140px">
       </colgroup>
       <thead><tr>${CC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${sl.length?sl.map(r=>`<tr class="${r.isErr?'er':''}">
@@ -373,8 +373,6 @@ function rC(monthData){
         <td style="color:#8c8c8c">${tx(r.确认时间)}</td>
         <td>${rh(r.rpa_items)}</td>
         <td style="color:#f5222d;overflow:hidden;text-overflow:ellipsis;max-width:120px">${tx(r.rpa_remark)}</td>
-        <td>${r.附件.length?r.附件.map(f=>`<span class="ft">📎 ${f}</span>`).join(' '):''}</td>
-        <td><button class="ub">上传附件</button></td>
       </tr>`).join(''):`<tr><td colspan="${CC.length}" class="emp-cell">暂无数据</td></tr>`}
       </tbody>
     </table></div>${pgHtml(tot,PZ)}`;
