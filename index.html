@@ -200,7 +200,7 @@ function genData(month,total){
   const rows=[];
   for(let i=0;i<total;i++){
     const ct=ctd[i],src=srd[i],st=std[i],sj=SJ[i%4],city=SC[sj],idx=i%8,ins=INS_SETS[idx],ri=INS_RPA[idx],rpa=mkR(st,ri),ap=st==='待审核'?'待审核':st==='已退回'?'已退回':'审核通过',pfx=sj.includes('广州')?'GZ':sj.includes('漯河')?'LH':sj.includes('佛山')?'FS':'HQ',hg=ins.includes('住房公积金');
-    rows.push({seq:i+1,emp:`EMP${String(10000+i).padStart(5,'0')}`,name:NS[i%NS.length],d1:'大参林',d2:i%2===0?'零售事业部':'职能中心',d3:i%3===0?'华南区':i%3===1?'华中区':'职能部门',dept:DP[i%DP.length],证件类型:'居民身份证',证件号:`4401011${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%15}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,人员类别:'正式员工',用工形式:'全职',特定人员:'',职等:`L${(i%5)+2}`,社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,特定工伤主体:'',参保状态:st==='申报成功'?'已缴纳':'未缴纳',参保形式:src==='异地申请'?'异地参保':'正常参保',参保地:city,原参保地:src==='异地申请'?'广州市':'',申请参保地:src==='异地申请'?city:'',参保险种:ins,公积金比例:hg?'12%':'',社保基数:String([5000,6000,7000,8000,9000,10000,12000][i%7]),公积金基数:hg?String([5000,6000,8000,10000][i%4]):'',change_type:ct,增员时间:ct==='增员'?month:'',减员时间:ct==='减员'?month:'',减员原因:ct==='减员'?['主动离职','合同到期','协议解除'][i%3]:'',调基时间:ct==='调基'?month:'',补缴开始:ct==='补缴'?month:'',补缴结束:ct==='补缴'?month:'',补缴原因:ct==='补缴'?'上月申报失败':'',source:src,approve_status:ap,确认时间:ap==='审核通过'?`${month}-${String((i%9)+1).padStart(2,'0')}`:'',ticket_month:month,rpa_items:rpa,rpa_remark:aF(rpa)?['证件号不匹配','减员时间超截止','公积金账户异常'][i%3]:'',附件:ap==='审核通过'&&st!=='待申报'?[`RZ-${String(i+1).padStart(3,'0')}.jpg`]:[],isErr:aF(rpa)});
+    rows.push({seq:i+1,emp:`EMP${String(10000+i).padStart(5,'0')}`,name:NS[i%NS.length],d1:'大参林',d2:i%2===0?'零售事业部':'职能中心',d3:i%3===0?'华南区':i%3===1?'华中区':'职能部门',dept:DP[i%DP.length],证件类型:'居民身份证',证件号:`4401011${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%15}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,人员类别:'正式员工',用工形式:'全职',特定人员:'',职等:`L${(i%5)+2}`,社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,特定工伤主体:'',参保状态:st==='申报成功'?'已缴纳':'未缴纳',参保形式:src==='异地申请'?'异地参保':'正常参保',参保地:city,原参保地:src==='异地申请'?'广州市':'',申请参保地:src==='异地申请'?city:'',参保险种:ins,公积金比例:hg?'12%':'',社保基数:String([5000,6000,7000,8000,9000,10000,12000][i%7]),公积金基数:hg?String([5000,6000,8000,10000][i%4]):'',change_type:ct,增员时间:ct==='增员'?month:'',减员时间:ct==='减员'?month:'',减员原因:ct==='减员'?['主动离职','合同到期','协议解除'][i%3]:'',调基时间:ct==='调基'?month:'',补缴开始:ct==='补缴'?month:'',补缴结束:ct==='补缴'?month:'',补缴原因:ct==='补缴'?'上月申报失败':'',source:src,approve_status:ap,确认时间:ap==='审核通过'?`${month}-${String((i%9)+1).padStart(2,'0')}`:'',审核建议:ap==='已退回'?['请核实参保险种是否正确','社保基数填写有误，请重新核对','参保地与员工实际工作地不符'][i%3]:'',ticket_month:month,rpa_items:rpa,rpa_remark:aF(rpa)?['证件号不匹配','减员时间超截止','公积金账户异常'][i%3]:'',附件:ap==='审核通过'&&st!=='待申报'?[`RZ-${String(i+1).padStart(3,'0')}.jpg`]:[],isErr:aF(rpa)});
   }
   return rows;
 }
@@ -306,7 +306,7 @@ function pgHtml(tot,PZ){
   return h+'</div>';
 }
 
-const CC=['','序号','所属月份','员工号','姓名','一级部门','二级部门','三级部门','部门名称','证件类型','证件号','性别','民族','出生日期','人员类别','用工形式','特定人员类型','职等','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','社保基数','公积金基数','变动类型','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因','数据来源','待办审批状态','名单确认时间','RPA申报结果','RPA申报结果备注','附件','上传附件'];
+const CC=['','序号','所属月份','员工号','姓名','一级部门','二级部门','三级部门','部门名称','证件类型','证件号','性别','民族','出生日期','人员类别','用工形式','特定人员类型','职等','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','社保基数','公积金基数','变动类型','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因','数据来源','待办审批状态','审核建议','名单确认时间','RPA申报结果','RPA申报结果备注','附件','上传附件'];
 
 function rC(monthData){
   const s1=getV('sn'),s2=getV('se'),su=getV('sunit'),sct=getV('sct'),ssj=getV('ssj'),sgj=getV('sgj');
@@ -348,7 +348,7 @@ function rC(monthData){
         <col style="width:52px"><col style="width:60px"><col style="width:60px"><col style="width:80px">
         <col style="width:60px"><col style="width:72px"><col style="width:72px"><col style="width:80px">
         <col style="width:64px"><col style="width:72px"><col style="width:82px">
-        <col style="width:220px"><col style="width:120px"><col style="width:80px"><col style="width:72px">
+        <col style="width:220px"><col style="width:140px"><col style="width:120px"><col style="width:80px"><col style="width:72px">
       </colgroup>
       <thead><tr>${CC.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${sl.length?sl.map(r=>`<tr class="${r.isErr?'er':''}">
@@ -369,6 +369,7 @@ function rC(monthData){
         <td>${tx(r.增员时间)}</td><td>${tx(r.减员时间)}</td><td style="color:#8c8c8c">${tx(r.减员原因)}</td>
         <td>${tx(r.调基时间)}</td><td>${tx(r.补缴开始)}</td><td>${tx(r.补缴结束)}</td><td style="color:#8c8c8c">${tx(r.补缴原因)}</td>
         <td>${tag(r.source)}</td><td>${tag(r.approve_status)}</td>
+        <td style="color:#fa8c16;overflow:hidden;text-overflow:ellipsis;max-width:140px" title="${tx(r.审核建议)}">${tx(r.审核建议)}</td>
         <td style="color:#8c8c8c">${tx(r.确认时间)}</td>
         <td>${rh(r.rpa_items)}</td>
         <td style="color:#f5222d;overflow:hidden;text-overflow:ellipsis;max-width:120px">${tx(r.rpa_remark)}</td>
