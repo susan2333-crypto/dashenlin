@@ -184,7 +184,7 @@ tr.er:hover td{background:#FEE2E2;}
 
 <!-- Page Header -->
 <div class="page-header">
-  <div class="page-header-icon">📋</div>
+  <div class="page-header-icon"></div>
   <h1>社保公积金管理台账</h1>
 </div>
 
@@ -251,19 +251,19 @@ tr.er:hover td{background:#FEE2E2;}
 <!-- Cards -->
 <div class="cards-wrap">
   <div class="card cur" id="cd0" onclick="sw(0)">
-    <div class="card-icon-wrap ic-blue">📋</div>
+    <div class="card-icon-wrap ic-blue"></div>
     <div class="card-num" id="cn0">86</div>
     <div class="card-title">社保公积金变动名单台账</div>
     <div class="card-sub" id="cs0">增员42 · 减员28 · 补缴7 · 调基9</div>
   </div>
   <div class="card" id="cd1" onclick="sw(1)">
-    <div class="card-icon-wrap ic-green">✅</div>
+    <div class="card-icon-wrap ic-green"></div>
     <div class="card-num" id="cn1">86</div>
     <div class="card-title">社保公积金申报台账</div>
     <div class="card-sub" id="cs1">增员42 · 减员28 · 补缴7 · 调基9</div>
   </div>
   <div class="card" id="cd2" onclick="sw(2)">
-    <div class="card-icon-wrap ic-orange">💰</div>
+    <div class="card-icon-wrap ic-orange"></div>
     <div class="card-num" id="cn2">12</div>
     <div class="card-title">社保公积金缴费台账</div>
     <div class="card-sub" id="cs2">差异待确认2 · 缴费异常2 · 已缴费4</div>
@@ -860,7 +860,7 @@ function pgHtml(tot,PZ){
 // 基础列（两个台账共用）
 const BASE_COLS=['','序号','所属月份','变动类型','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员时间','公积金增员时间','社保减员时间','公积金减员时间','启封原因','开户原因','减员原因','调整原因','调整类型','调基时间','补缴开始时间','补缴结束时间','补缴月份','补缴原因','补缴类型','特定人员类型','职等','职称','性别','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','证件号','通讯地址','银行','账号','银行账户类别','数据来源','名单更新时间','名单是否确认'];
 // 申报台账额外列
-const RPA_COLS=['申报类型','RPA申报时间','RPA申报结果','RPA申报结果备注','附件'];
+const RPA_COLS=['申报类型','RPA申报时间','RPA申报结果','RPA申报结果备注','人工处理时间','附件'];
 // 两个台账的完整列定义
 const CHANGE_COLS=[...BASE_COLS,'操作'];
 const CC=[...BASE_COLS,...RPA_COLS,'操作'];
@@ -997,16 +997,20 @@ function rChange(changeData, mode){
     let rpaExtra = '';
     if(mode===1){
       const attachHtml = r.附件&&r.附件.length ? r.附件.map(f=>'<span class="ft">📎 '+f.name+'</span>').join(' ') : '';
+      const manualTimeHtml = r.manual_time
+        ? '<span style="color:var(--gray-500);font-size:12px">'+r.manual_time+'</span>'
+        : '';
       rpaExtra = '<td>'+tag(r.申报类型||'')+'</td>'
         +'<td style="color:var(--gray-400);font-size:12px">'+tx(r.rpa_time||'')+'</td>'
         +'<td>'+rh(r.rpa_items||[])+'</td>'
         +'<td style="color:var(--red);font-size:12px">'+tx(r.rpa_remark||'')+'</td>'
+        +'<td>'+manualTimeHtml+'</td>'
         +'<td>'+attachHtml+'</td>';
     }
     // 操作列：避免引号嵌套问题，直接生成带 data 属性的 span，由 fillOps 注入按钮
     const opsSpan = mode===0
       ? '<span class="row-ops-confirm" data-emp="'+r.emp+'"></span>'
-      : '<span class="row-ops" data-emp="'+r.emp+'" data-err="'+(r.isErr?1:0)+'"></span>';
+      : '<span class="row-ops" data-emp="'+r.emp+'" data-err="'+(r.isErr?1:0)+'" data-vt="'+vt+'"></span>';
     return '<tr class="'+(r.isErr&&mode===1?'er':'')+'">'+base+rpaExtra+'<td style="white-space:nowrap">'+opsSpan+'</td></tr>';
   }).join('') : '<tr><td colspan="'+cols.length+'" class="emp-empty">暂无数据</td></tr>';
 
@@ -1279,10 +1283,11 @@ function fillOps() {
     el.appendChild(delBtn);
   });
 
-  // 申报台账（card=1）：row-ops → 编辑 + 上传附件 + 删除
+  // 申报台账（card=1）：row-ops → 编辑 + 上传附件 + 删除 + 已人工处理（仅申报失败tab）
   document.querySelectorAll('.row-ops').forEach(function(el) {
     if (el.children.length) return;
     var emp = el.dataset.emp;
+    var rowVt = el.dataset.vt || '';
     var editBtn = document.createElement('button');
     editBtn.className = 'abtn';
     editBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;margin-right:4px';
@@ -1299,6 +1304,30 @@ function fillOps() {
     label.appendChild(input);
     label.appendChild(document.createTextNode('上传附件'));
     el.appendChild(label);
+    // 「已人工处理」按钮：仅在「申报失败」tab 展示
+    if (rowVt === '申报失败') {
+      var manualBtn = document.createElement('button');
+      manualBtn.className = 'abtn';
+      manualBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;margin-right:4px;color:var(--green);border-color:var(--gray-200);';
+      manualBtn.textContent = '已人工处理';
+      manualBtn.onclick = (function(e){ return function(ev){
+        ev.stopPropagation();
+        var r = _rowCache['ch_' + e];
+        if (!r) return;
+        // 将所有险种 status 置为申报成功
+        if (r.rpa_items && r.rpa_items.length) {
+          r.rpa_items = r.rpa_items.map(function(item){ return {n: item.n, s: '申报成功'}; });
+        }
+        r.isErr = false;
+        r.rpa_remark = '';
+        // 写入人工处理时间（当前时间）
+        var now = new Date();
+        var pad = function(n){ return String(n).padStart(2,'0'); };
+        r.manual_time = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+        render();
+      }; })(emp);
+      el.appendChild(manualBtn);
+    }
     var delBtn = document.createElement('button');
     delBtn.className = 'abtn';
     delBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;color:var(--red);border-color:var(--gray-200);';
