@@ -506,17 +506,19 @@ Object.keys(MONTH_TOTALS).forEach(m=>{
 const DA=(function(){
   // 单位 × 系统类型 × 月份 → 覆盖 2025-10 ~ 2026-03 共6个月
   const UNITS=[
-    {name:'大参林医药集团', city:'广州市', sbNo:'SB-HQ-001', gjjNo:'GJJ-HQ-001'},
-    {name:'大参林（广州）',  city:'广州市', sbNo:'SB-GZ-001', gjjNo:'GJJ-GZ-001'},
-    {name:'大参林（漯河）',  city:'漯河市', sbNo:'SB-LH-001', gjjNo:'GJJ-LH-001'},
-    {name:'大参林（佛山）',  city:'佛山市', sbNo:'SB-FS-001', gjjNo:'GJJ-FS-001'},
-    {name:'大参林（武汉）',  city:'武汉市', sbNo:'SB-WH-001', gjjNo:'GJJ-WH-001'},
-    {name:'大参林（成都）',  city:'成都市', sbNo:'SB-CD-001', gjjNo:'GJJ-CD-001'},
+    // sbNo=通用社保号, sbNoYL=养老独立账号, sbNoYLiao=医疗独立账号, gjjNo=公积金账号
+    // 有值则生成对应条目，为null则不生成
+    {name:'大参林医药集团', city:'广州市', sbNo:'SB-HQ-001',    sbNoYL:null,         sbNoYLiao:'SB-HQ-YL-001',  gjjNo:'GJJ-HQ-001'},
+    {name:'大参林（广州）',  city:'广州市', sbNo:'SB-GZ-001',    sbNoYL:'SB-GZ-YL-001', sbNoYLiao:'SB-GZ-YLiao-001', gjjNo:'GJJ-GZ-001'},
+    {name:'大参林（漯河）',  city:'漯河市', sbNo:'SB-LH-001',    sbNoYL:null,         sbNoYLiao:null,            gjjNo:'GJJ-LH-001'},
+    {name:'大参林（佛山）',  city:'佛山市', sbNo:'SB-FS-001',    sbNoYL:null,         sbNoYLiao:null,            gjjNo:'GJJ-FS-001'},
+    {name:'大参林（武汉）',  city:'武汉市', sbNo:'SB-WH-001',    sbNoYL:'SB-WH-YL-001', sbNoYLiao:null,            gjjNo:'GJJ-WH-001'},
+    {name:'大参林（成都）',  city:'成都市', sbNo:'SB-CD-001',    sbNoYL:null,         sbNoYLiao:null,            gjjNo:'GJJ-CD-001'},
   ];
   const MONTHS=['2025-10','2025-11','2025-12','2026-01','2026-02','2026-03'];
   // 按月份固定的缴费状态模板（社保/公积金交替不同状态，增加多样性）
+  // [社保状态, 公积金状态]
   const STATE_MATRIX={
-    // [社保状态, 公积金状态]
     '大参林医药集团': ['已缴费',     '已缴费'],
     '大参林（广州）':  ['已缴费',     '已核定未缴费'],
     '大参林（漯河）':  ['已缴费',     '缴费异常'],
@@ -543,32 +545,34 @@ const DA=(function(){
   MONTHS.forEach(function(month){
     const my=month.replace('-','');
     UNITS.forEach(function(unit,ui){
-      const states=STATE_MATRIX[unit.name]||['未核对','未核对'];
-      const sbState=states[0];
-      const gjjState=states[1];
-      const sbAmt=SB_AMOUNTS[unit.name]||30000;
-      const gjjAmt=GJJ_AMOUNTS[unit.name]||20000;
       const cnt=CNT_MAP[unit.name]||10;
       // 根据月份略微浮动金额
       const monthOffset=MONTHS.indexOf(month);
       const amtVar=1+(monthOffset-3)*0.012;
 
-      function makeRow(sysType, state, baseAmt, sysIdx){
+      function makeRow(acctField, acctNo, bizType, state, baseAmt, sysIdx){
+        // 每条记录只有一个账号字段有值，其余为空
+        if(!acctNo || !state) return null;
         const id='A'+String(idxCounter++).padStart(2,'0');
         const isErr=state==='缴费异常';
         const isDiff=state==='差异待确认';
         const isDone=state==='已缴费';
         const isConfirmed=state==='已核定未缴费';
-        const isPending=state==='未核对';
         const createDay=String(5+(ui%6)+sysIdx).padStart(2,'0');
         const confirmDay=String(7+(ui%5)+sysIdx).padStart(2,'0');
         const deductDay=String(10+(ui%4)+sysIdx).padStart(2,'0');
+        const stateChangDay=String(8+(ui%5)+sysIdx).padStart(2,'0');
         const amt=Math.round(baseAmt*amtVar);
         return {
           id:id, month:month, name:unit.name,
-          sys_type:sysType,
-          地:unit.city,
-          payUuid:'PAY-'+my+'-'+String(ui*2+sysIdx+1).padStart(3,'0'),
+          city:unit.city,
+          sbNo:      acctField==='sbNo'      ? acctNo : '',
+          sbNoYLiao: acctField==='sbNoYLiao' ? acctNo : '',
+          sbNoYL:    acctField==='sbNoYL'    ? acctNo : '',
+          gjjNo:     acctField==='gjjNo'     ? acctNo : '',
+          biz_type:  bizType,
+          sys_type:  bizType==='公积金' ? '公积金系统' : '社保系统',
+          payUuid:'PAY-'+my+'-'+String(ui*4+sysIdx+1).padStart(3,'0'),
           createTime:month+'-'+createDay,
           pay_state:state,
           remark:isErr?'账户余额不足，扣款失败':isDiff?'金额与核定不一致':'',
@@ -577,6 +581,7 @@ const DA=(function(){
           diff:isDiff?'缴费金额有差异':isDone||isConfirmed?'无差异':'',
           confirmTime:isDone||isConfirmed?month+'-'+confirmDay:'',
           deductDate:isDone?month+'-'+deductDay:'',
+          stateChangeTime:isDone||isErr||isDiff?month+'-'+stateChangDay:'',
           lnj:isErr?'¥'+String(Math.round(amt*0.0005)):'',
           files:isDone?[{name:'数据源文件.xlsx',t:1},{name:'缴费凭证.pdf',t:2}]
                 :isDiff||isConfirmed?[{name:'数据源文件.xlsx',t:1}]:[],
@@ -584,8 +589,14 @@ const DA=(function(){
         };
       }
 
-      rows.push(makeRow('社保系统', sbState, sbAmt, 0));
-      rows.push(makeRow('公积金系统', gjjState, gjjAmt, 1));
+      const states=STATE_MATRIX[unit.name]||['未核对','未核对'];
+      const sbAmt=SB_AMOUNTS[unit.name]||30000;
+      const gjjAmt=GJJ_AMOUNTS[unit.name]||20000;
+      // 有哪个账号就生成哪条记录，每条记录只有一个账号字段有值
+      if(unit.sbNo)      rows.push(makeRow('sbNo',      unit.sbNo,      '社保',  states[0], sbAmt,                  0));
+      if(unit.sbNoYLiao) rows.push(makeRow('sbNoYLiao', unit.sbNoYLiao, '社保',  states[0], Math.round(sbAmt*0.30), 1));
+      if(unit.sbNoYL)    rows.push(makeRow('sbNoYL',    unit.sbNoYL,    '社保',  states[0], Math.round(sbAmt*0.45), 2));
+      if(unit.gjjNo)     rows.push(makeRow('gjjNo',     unit.gjjNo,     '公积金',states[1], gjjAmt,                 3));
     });
   });
 
@@ -636,6 +647,10 @@ const DE=(function(){
       var swh=swdwh+swdrh;
       var gjjdw=isPay?Math.round(gjjj*parseFloat(gjjbl)/100):0;
       var gjjdr=isPay?gjjdw:0;
+      // 社保公积金合计（社保 + 公积金）
+      var swgjjdwh=swdwh+gjjdw;
+      var swgjjdrh=swdrh+gjjdr;
+      var swgjjh=swh+gjjdw+gjjdr;
       rows.push({
         ai:acct.ai,
         emp:'EMP'+String(10000+empIdx).padStart(5,'0'),
@@ -667,6 +682,7 @@ const DE=(function(){
         hldw:0,dbdw:0,
         swdwh:swdwh,swdrh:swdrh,swh:swh,
         gjjdw:gjjdw,gjjdr:gjjdr,
+        swgjjdwh:swgjjdwh,swgjjdrh:swgjjdrh,swgjjh:swgjjh,
         bs:bs,bsh:bs
       });
       empIdx++;
@@ -1025,8 +1041,8 @@ function rChange(changeData, mode){
 
 
 // ─── 台账2：月度缴费台账 ─────────────────────────────────────────────────────
-const AC=['','序号','缴费月份','单位名称','申报系统','参保地','缴费单ID','创建时间','缴费单状态','缴费单备注','缴费总金额','缴费人数','系统计算差异','核定缴费时间','实际扣款日期','滞纳金','附件（接口回传）','操作'];
-const EC=['序号','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员时间','公积金增员时间','社保减员时间','公积金减员时间','启封原因','开户原因','减员原因','调整原因','调基时间','调整类型','补缴开始时间','补缴结束时间','补缴月数','补缴原因','补缴类型','特定人员类型','费用变更类型','数据来源','养老单位','养老个人','失业单位','失业个人','医疗单位','医疗个人','工伤单位','生育单位','长护单位','大病单位','社保单位合计','社保个人合计','社保合计','公积金单位','公积金个人','参保状态回写','操作'];
+const AC=['','序号','缴费月份','参保地','单位名称','单位社保号','单位社保号_医疗','单位社保号_养老','公积金账号','业务类型','缴费单ID','缴费单创建时间','缴费单状态','缴费单备注','缴费总金额','缴费人数','系统计算差异','核定缴费时间','实际扣款日期','缴费单状态变更时间','附件','滞纳金','操作'];
+const EC=['序号','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员时间','公积金增员时间','社保减员时间','公积金减员时间','启封原因','开户原因','减员原因','调整原因','调基时间','调整类型','补缴开始时间','补缴结束时间','补缴月数','补缴原因','补缴类型','特定人员类型','费用变更类型','数据来源','养老单位','养老个人','失业单位','失业个人','医疗单位','医疗个人','工伤单位','生育单位','长护单位','大病单位','社保单位合计','社保个人合计','社保合计','公积金单位','公积金个人','社保公积金单位合计','社保公积金个人合计','社保公积金合计','参保状态回写','操作'];
 function rPay(month){
   const tl=vt;
   if(tl==='费用明细台账'){rDetail(month);return;}
@@ -1054,17 +1070,26 @@ function rPay(month){
     rows+=`<tr class="${a.isErr?' er':''}">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="chk" data-id="${a.id}"/></td>
       <td style="color:var(--gray-400);font-size:12px">${(pg-1)*PZ+idx+1}</td>
-      <td>${a.month}</td><td style="font-weight:500">${a.name}</td>
-      <td>${tag(a.sys_type)}</td><td>${a.地}</td>
+      <td>${a.month}</td>
+      <td>${a.city||a.地||''}</td>
+      <td style="font-weight:500">${a.name}</td>
+      <td style="color:#8c8c8c;font-size:12px">${tx(a.sbNo||'')}</td>
+      <td style="color:#8c8c8c;font-size:12px">${tx(a.sbNoYLiao||'')}</td>
+      <td style="color:#8c8c8c;font-size:12px">${tx(a.sbNoYL||'')}</td>
+      <td style="color:#8c8c8c;font-size:12px">${tx(a.gjjNo||'')}</td>
+      <td>${tag(a.biz_type||a.sys_type)}</td>
       <td style="color:#8c8c8c;font-size:12px">${tx(a.payUuid)}</td>
       <td style="color:#8c8c8c">${tx(a.createTime)}</td>
       <td>${tag(a.pay_state)}</td>
       <td style="color:#f5222d">${tx(a.remark)}</td>
-      <td style="font-weight:600">${tx(a.amount)}</td><td>${a.cnt||''}</td>
+      <td style="font-weight:600">${tx(a.amount)}</td>
+      <td>${a.cnt||''}</td>
       <td>${tag(a.diff)}</td>
       <td style="color:#8c8c8c">${tx(a.confirmTime)}</td>
       <td style="color:#8c8c8c">${tx(a.deductDate)}</td>
-      <td>${tx(a.lnj)}</td><td>${fh}</td>
+      <td style="color:#8c8c8c">${tx(a.stateChangeTime||'')}</td>
+      <td>${fh}</td>
+      <td style="color:var(--gray-400)">${tx(a.lnj)}</td>
       <td onclick="event.stopPropagation()"><button class="al" onclick="gD('${a.id}')">查看明细</button></td>
     </tr>`;
   });
@@ -1124,6 +1149,9 @@ function rDetail(month){
       <td style="font-weight:600">${tx(e.swdrh)}</td>
       <td style="font-weight:600">${tx(e.swh)}</td>
       <td>${tx(e.gjjdw||'')}</td><td>${tx(e.gjjdr||'')}</td>
+      <td style="font-weight:600;color:var(--blue)">${tx(e.swgjjdwh||'')}</td>
+      <td style="font-weight:600;color:var(--blue)">${tx(e.swgjjdrh||'')}</td>
+      <td style="font-weight:700;color:var(--blue)">${tx(e.swgjjh||'')}</td>
       <td>${tag(e.bsh)}</td>
       <td><span class="row-ops-cost" data-emp="${e.emp}" data-ai="${e.ai||''}" data-err="${e.bs==='未缴纳'?1:0}"></span></td>
     </tr>`).join(''):`<tr><td colspan="${EC.length}" class="emp-empty">暂无数据</td></tr>`}
