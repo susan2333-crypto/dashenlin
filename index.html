@@ -84,7 +84,7 @@ tr.er:hover td{background:#FEE2E2;}
 .ic-red{background:var(--red-light);}
 .card-num{font-size:32px;font-weight:700;color:var(--gray-800);line-height:1.1;margin-bottom:4px;}
 .card-title{font-size:13px;font-weight:500;color:var(--gray-500);margin-bottom:6px;}
-.card-sub{font-size:11px;color:var(--gray-400);line-height:1.6;}
+.card-sub{font-size:11px;color:var(--gray-400);line-height:1.6;white-space:pre-line;}
 
 /* ── List Panel ── */
 .list-panel{background:#fff;margin:16px 20px 20px;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
@@ -252,21 +252,21 @@ tr.er:hover td{background:#FEE2E2;}
 <div class="cards-wrap">
   <div class="card cur" id="cd0" onclick="sw(0)">
     <div class="card-icon-wrap ic-blue"></div>
-    <div class="card-num" id="cn0">86</div>
+    <div class="card-num" id="cn0">86人</div>
     <div class="card-title">社保公积金变动名单台账</div>
-    <div class="card-sub" id="cs0">增员42 · 减员28 · 补缴7 · 调基9</div>
+    <div class="card-sub" id="cs0">增员42人 · 减员28人 · 补缴7人 · 调基9人</div>
   </div>
   <div class="card" id="cd1" onclick="sw(1)">
     <div class="card-icon-wrap ic-green"></div>
-    <div class="card-num" id="cn1">86</div>
+    <div class="card-num" id="cn1">86人</div>
     <div class="card-title">社保公积金申报台账</div>
-    <div class="card-sub" id="cs1">增员42 · 减员28 · 补缴7 · 调基9</div>
+    <div class="card-sub" id="cs1">增员42人 · 减员28人 · 补缴7人 · 调基9人</div>
   </div>
   <div class="card" id="cd2" onclick="sw(2)">
     <div class="card-icon-wrap ic-orange"></div>
-    <div class="card-num" id="cn2">12</div>
+    <div class="card-num" id="cn2">12人</div>
     <div class="card-title">社保公积金缴费台账</div>
-    <div class="card-sub" id="cs2">差异待确认2 · 缴费异常2 · 已缴费4</div>
+    <div class="card-sub" id="cs2">差异待确认2人 · 缴费异常2人 · 应缴12人 · 已缴费4人</div>
   </div>
 
 </div>
@@ -337,8 +337,8 @@ function getV(id){const el=document.getElementById(id);return el?el.value.trim()
 function tag(v){
   if(!v)return'';
   const M={增员:'t-blue',减员:'t-gray',补缴:'t-orange',调基:'t-teal',在保人员:'t-gray',
-    常规维护:'t-gray',异地申请:'t-teal',紧急增减员:'t-orange',
-    已:'t-green','否':'t-orange',
+    常规维护:'t-gray',异地申请:'t-teal',紧急工单:'t-orange',
+    已:'t-green','否':'t-orange','是':'t-green',
     已缴费:'t-green',已核定未缴费:'t-orange',缴费异常:'t-red',未核对:'t-gray',
     无差异:'t-green',缴费金额有差异:'t-orange',缴费人数有差异:'t-orange','缴费金额和人数有差异':'t-red',
     社保系统:'t-blue',公积金系统:'t-teal',
@@ -421,7 +421,7 @@ function genConfirmData(month, changeData){
 
 function genData(month,total){
   const ctd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.49);i++)a.push('增员');for(let i=0;i<Math.round(total*0.33);i++)a.push('减员');for(let i=0;i<Math.round(total*0.08);i++)a.push('补缴');while(a.length<total)a.push('调基');return sh(a);})();
-  const srd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.74);i++)a.push('常规维护');for(let i=0;i<Math.round(total*0.19);i++)a.push('异地申请');while(a.length<total)a.push('紧急增减员');return sh(a);})();
+  const srd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.74);i++)a.push('常规维护');for(let i=0;i<Math.round(total*0.19);i++)a.push('异地申请');while(a.length<total)a.push('紧急工单');return sh(a);})();
   // 名单是否确认：~70%已确认，其余否
   const cfmd=(()=>{const a=[];for(let i=0;i<Math.round(total*0.7);i++)a.push('是');while(a.length<total)a.push('否');return sh(a);})();
   // RPA状态只对已确认的行生效
@@ -664,7 +664,7 @@ const DE=(function(){
         jd:'L'+(2+(empIdx%5)),
         rylb:['工人','个人','干部','农民'][empIdx%4],
         ryzt:'在职',yglx:['合同','干部','城镇合同制职工'][empIdx%3],
-        tdrlx:'',ly:ly,sjly:['常规','常规','紧急增减员'][empIdx%3],
+        tdrlx:'',ly:ly,sjly:['常规','常规','紧急工单'][empIdx%3],
         bf:empIdx%8===0?'异地参保':'正常参保',
         bd:acct.bd,
         ycbd:empIdx%8===0?'广州市':'',
@@ -800,20 +800,27 @@ function render(){
   const cAdj=changeData.filter(r=>r.change_type==='调基').length;
   const cConf=changeData.filter(r=>r.名单是否确认==='是').length;
   const cFail=changeData.filter(r=>r.isErr).length;
-  document.getElementById('cn0').textContent=cTotal;
-  document.getElementById('cs0').textContent=`增员${cInc} · 减员${cDec} · 补缴${cBak} · 调基${cAdj}`;
+  document.getElementById('cn0').textContent=cTotal+'人';
+  document.getElementById('cs0').textContent=`增员${cInc}人 · 减员${cDec}人 · 补缴${cBak}人 · 调基${cAdj}人`;
 
-  // card 1：社保公积金申报台账 — 同一批数据，副标题：增减补调
-  document.getElementById('cn1').textContent=cTotal;
-  document.getElementById('cs1').textContent=`增员${cInc} · 减员${cDec} · 补缴${cBak} · 调基${cAdj}`;
+  // card 1：社保公积金申报台账 — 应增/实增/增员异常；减员/实减/减员异常；补缴/调基
+  const cIncConf=changeData.filter(r=>r.change_type==='增员'&&r.名单是否确认==='是').length;
+  const cIncSucc=changeData.filter(r=>r.change_type==='增员'&&r.名单是否确认==='是'&&r.rpa_items&&r.rpa_items.every(i=>i.s==='申报成功')).length;
+  const cIncErr=changeData.filter(r=>r.change_type==='增员'&&r.isErr).length;
+  const cDecConf=changeData.filter(r=>r.change_type==='减员'&&r.名单是否确认==='是').length;
+  const cDecSucc=changeData.filter(r=>r.change_type==='减员'&&r.名单是否确认==='是'&&r.rpa_items&&r.rpa_items.every(i=>i.s==='申报成功')).length;
+  const cDecErr=changeData.filter(r=>r.change_type==='减员'&&r.isErr).length;
+  document.getElementById('cn1').textContent=cTotal+'人';
+  document.getElementById('cs1').textContent=`应增${cInc}人·实增${cIncSucc}人·增员异常${cIncErr}人\n应减${cDec}人·实减${cDecSucc}人·减员异常${cDecErr}人 · 补缴${cBak}人·调基${cAdj}人`;
 
   // card 2：缴费台账 — 按当前月份动态计算
   const monthDA=DA.filter(a=>a.month===month);
   const diffN=monthDA.filter(a=>a.diff&&a.diff!=='无差异').length;
   const errN=monthDA.filter(a=>a.pay_state==='缴费异常').length;
   const paidN=monthDA.filter(a=>a.pay_state==='已缴费').length;
-  document.getElementById('cn2').textContent=monthDA.length;
-  document.getElementById('cs2').textContent=`差异待确认${diffN} · 缴费异常${errN} · 已缴费${paidN}`;
+  const totalN=monthDA.length;
+  document.getElementById('cn2').textContent=totalN+'人';
+  document.getElementById('cs2').textContent=`差异待确认${diffN}人 · 缴费异常${errN}人 · 应缴${totalN}人 · 已缴费${paidN}人`;
 
   // 已选条件
   const labels={smonth:'月份',sn:'员工姓名',se:'员工号',sunit:'单位名称',ssj:'社保主体',ss:'申报系统',sft:'失败类型'};
@@ -874,9 +881,9 @@ function pgHtml(tot,PZ){
 // mode=1：申报台账，有分页Tab(全部/已确认/申报失败)，有RPA列，操作=编辑/上传附件/RPA申报/导出
 
 // 基础列（两个台账共用）
-const BASE_COLS=['','序号','所属月份','变动类型','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员时间','公积金增员时间','社保减员时间','公积金减员时间','启封原因','开户原因','减员原因','调整原因','调整类型','调基时间','补缴开始时间','补缴结束时间','补缴月份','补缴原因','补缴类型','特定人员类型','职等','职称','性别','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','证件号','通讯地址','银行','账号','银行账户类别','数据来源','名单更新时间','名单是否确认'];
+const BASE_COLS=['','序号','生效月份','变动类型','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工类型','社保主体','公积金主体','费用主体','责任中心名称','责任中心编码','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','公积金单位比例','公积金单位费用','公积金个人费用','公积金合计','医疗缴费档次','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','启封原因','开户原因','减员原因','调整原因','调整类型','调基时间','社保补缴开始时间','社保补缴结束时间','社保补缴月份','公积金补缴开始时间','公积金补缴结束时间','公积金补缴月份','补缴原因','补缴类型','特定人员类型','职等','职称','性别','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','证件号','通讯地址','银行','账号','银行账户类别','数据来源','名单更新时间','名单是否确认'];
 // 申报台账额外列
-const RPA_COLS=['申报类型','RPA申报时间','RPA申报结果','RPA申报结果备注','人工处理时间','附件'];
+const RPA_COLS=['参加工作日期','是否参加医疗补助','就业形式','所属学校','申报类型','RPA申报时间','是否人工处理','RPA申报结果','RPA申报结果备注','人工处理时间','附件'];
 // 两个台账的完整列定义
 const CHANGE_COLS=[...BASE_COLS,'操作'];
 const CC=[...BASE_COLS,...RPA_COLS,'操作'];
@@ -885,7 +892,7 @@ function rowCells(r){
   return `
     <td><input type="checkbox" class="chk"/></td>
     <td>${r.seq}</td>
-    <td>${r.ticket_month||''}</td>
+    <td>${r.ticket_month||r.生效月份||''}</td>
     <td>${tag(r.change_type)}</td>
     <td>${tx(r.d1||'')}</td><td>${tx(r.d2||'')}</td><td>${tx(r.d3||'')}</td><td>${tx(r.dept||'')}</td>
     <td>${r.emp}</td>
@@ -893,11 +900,12 @@ function rowCells(r){
     <td>${tx(r.就业前身份||'')}</td>
     <td>${tag(r.人员类别||'')}</td>
     <td>${tx(r.人员状态||'')}</td>
-    <td>${tx(r.用工形式||'')}</td>
+    <td>${tx(r.用工形式||r.用工类型||'')}</td>
     <td>${tx(r.社保主体||'')}</td>
     <td>${tx(r.公积金主体||'')}</td>
     <td>${tx(r.费用主体||'')}</td>
-    <td>${tx(r.成本中心||'')}</td>
+    <td>${tx(r.责任中心名称||r.成本中心||'')}</td>
+    <td>${tx(r.责任中心编码||'')}</td>
     <td>${tx(r.特定工伤主体||'')}</td>
     <td>${tag(r.参保状态||'')}</td>
     <td>${tag(r.参保形式||'')}</td>
@@ -914,20 +922,27 @@ function rowCells(r){
     <td>${tx(r.公积金基数||'')}</td>
     <td>${tx(r.原公积金基数||'')}</td>
     <td>${tx(r.现公积金基数||'')}</td>
+    <td>${tx(r.公积金单位比例||'')}</td>
+    <td>${tx(r.公积金单位费用||'')}</td>
+    <td>${tx(r.公积金个人费用||'')}</td>
+    <td>${tx(r.公积金合计||'')}</td>
     <td>${tx(r.医疗缴费档次||'')}</td>
-    <td>${tx(r.社保增员时间||r.增员时间||'')}</td>
-    <td>${tx(r.公积金增员时间||r.增员时间||'')}</td>
-    <td>${tx(r.社保减员时间||r.减员时间||'')}</td>
-    <td>${tx(r.公积金减员时间||r.减员时间||'')}</td>
+    <td>${tx(r.社保增员生效月||r.增员时间||'')}</td>
+    <td>${tx(r.公积金增员生效月||r.增员时间||'')}</td>
+    <td>${tx(r.社保减员生效月||r.减员时间||'')}</td>
+    <td>${tx(r.公积金减员生效月||r.减员时间||'')}</td>
     <td>${tx(r.启封原因||'')}</td>
     <td>${tx(r.开户原因||'')}</td>
     <td>${tx(r.减员原因||'')}</td>
     <td>${tx(r.调整原因||'')}</td>
     <td>${tx(r.调整类型||'')}</td>
     <td>${tx(r.调基时间||'')}</td>
-    <td>${tx(r.补缴开始||'')}</td>
-    <td>${tx(r.补缴结束||'')}</td>
-    <td>${tx(r.补缴月份||'')}</td>
+    <td>${tx(r.社保补缴开始时间||r.补缴开始||'')}</td>
+    <td>${tx(r.社保补缴结束时间||r.补缴结束||'')}</td>
+    <td>${tx(r.社保补缴月份||'')}</td>
+    <td>${tx(r.公积金补缴开始时间||r.补缴开始||'')}</td>
+    <td>${tx(r.公积金补缴结束时间||r.补缴结束||'')}</td>
+    <td>${tx(r.公积金补缴月份||'')}</td>
     <td>${tx(r.补缴原因||'')}</td>
     <td>${tx(r.补缴类型||'')}</td>
     <td>${tx(r.特定人员||'')}</td>
@@ -1016,8 +1031,14 @@ function rChange(changeData, mode){
       const manualTimeHtml = r.manual_time
         ? '<span style="color:var(--gray-500);font-size:12px">'+r.manual_time+'</span>'
         : '';
-      rpaExtra = '<td>'+tag(r.申报类型||'')+'</td>'
+      const isManual = r.manual_time ? '是' : '否';
+      rpaExtra = '<td style="color:var(--gray-400);font-size:12px">'+tx(r.参加工作日期||'')+'</td>'
+        +'<td>'+tag(r.是否参加医疗补助||'否')+'</td>'
+        +'<td>'+tx(r.就业形式||'雇佣就业')+'</td>'
+        +'<td>'+tx(r.所属学校||'')+'</td>'
+        +'<td>'+tag(r.申报类型||'')+'</td>'
         +'<td style="color:var(--gray-400);font-size:12px">'+tx(r.rpa_time||'')+'</td>'
+        +'<td>'+tag(isManual)+'</td>'
         +'<td>'+rh(r.rpa_items||[])+'</td>'
         +'<td style="color:var(--red);font-size:12px">'+tx(r.rpa_remark||'')+'</td>'
         +'<td>'+manualTimeHtml+'</td>'
@@ -1042,7 +1063,7 @@ function rChange(changeData, mode){
 
 // ─── 台账2：月度缴费台账 ─────────────────────────────────────────────────────
 const AC=['','序号','缴费月份','参保地','单位名称','单位社保号','单位社保号_医疗','单位社保号_养老','公积金账号','业务类型','缴费单ID','缴费单创建时间','缴费单状态','缴费单备注','缴费总金额','缴费人数','系统计算差异','核定缴费时间','实际扣款日期','缴费单状态变更时间','附件','滞纳金','操作'];
-const EC=['序号','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','成本中心','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员时间','公积金增员时间','社保减员时间','公积金减员时间','启封原因','开户原因','减员原因','调整原因','调基时间','调整类型','补缴开始时间','补缴结束时间','补缴月数','补缴原因','补缴类型','特定人员类型','费用变更类型','数据来源','养老单位','养老个人','失业单位','失业个人','医疗单位','医疗个人','工伤单位','生育单位','长护单位','大病单位','社保单位合计','社保个人合计','社保合计','公积金单位','公积金个人','社保公积金单位合计','社保公积金个人合计','社保公积金合计','参保状态回写','操作'];
+const EC=['序号','一级部门','二级部门','三级部门','部门名称','员工号','姓名','就业前身份','人员类别','人员状态','用工类型','社保主体','公积金主体','费用主体','责任中心名称','责任中心编码','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保基数','原社保基数','现社保基数','公积金基数','原公积金基数','现公积金基数','医疗缴费档次','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','启封原因','开户原因','减员原因','调整原因','调基时间','调整类型','社保补缴开始时间','社保补缴结束时间','公积金补缴开始时间','公积金补缴结束时间','补缴月数','补缴原因','补缴类型','特定人员类型','费用变更类型','数据来源','养老单位','养老个人','失业单位','失业个人','医疗单位','医疗个人','工伤单位','生育单位','长护单位','大病单位','社保单位合计','社保个人合计','社保合计','公积金单位','公积金个人','社保公积金单位合计','社保公积金个人合计','社保公积金合计','参保状态回写','操作'];
 function rPay(month){
   const tl=vt;
   if(tl==='费用明细台账'){rDetail(month);return;}
@@ -1123,7 +1144,7 @@ function rDetail(month){
       <td>${tx(e.qyqsf||e.就业前身份||'')}</td>
       <td>${tag(e.rylb||e.人员类别||'')}</td><td>${tx(e.ryzt||e.人员状态||'')}</td><td>${tx(e.yglx||e.用工形式||'')}</td>
       <td>${e.sm}</td><td>${e.gm}</td><td>${e.fm}</td>
-      <td style="color:var(--gray-400)">${e.cc}</td><td>${tx(e.tdrlx||'')}</td>
+      <td style="color:var(--gray-400)">${e.cc}</td><td>${tx(e.cc||'')}</td><td>${tx(e.tdrlx||'')}</td>
       <td>${tag(e.bs)}</td><td>${tag(e.bf)}</td><td>${e.bd}</td>
       <td>${tx(e.ycbd)}</td><td>${tx(e.sqbbd)}</td>
       <td>${insCell(e.bx,180)}</td>
@@ -1136,6 +1157,7 @@ function rDetail(month){
       <td>${tx(e.qfyy||'')}</td><td>${tx(e.khyy||'')}</td>
       <td>${tx(e.jyyy||e.jyyy2||'')}</td><td>${tx(e.tzlx||'')}</td>
       <td>${tx(e.tdjsj||'')}</td><td>${tx(e.调整类型||e.tzlx||'')}</td>
+      <td>${tx(e.bcksrq||'')}</td><td>${tx(e.bcjsrq||'')}</td>
       <td>${tx(e.bcksrq||'')}</td><td>${tx(e.bcjsrq||'')}</td>
       <td>${tx(e.bcys||'')}</td><td>${tx(e.bcyy||'')}</td><td>${tx(e.bclx||'')}</td>
       <td>${tx(e.tdrtype||'')}</td>
@@ -1186,13 +1208,17 @@ function openEdit(type, r) {
   let html = '';
   if (type === 'confirm') {
     html += grp('可编辑字段（人事对接人权限）');
-    html += sel('参保状态', '参保状态', r.参保状态, ['未缴纳','已缴纳','已停保','不缴纳'], true);
+    html += sel('变动类型', 'change_type', r.change_type||'增员', ['增员','减员','补缴','调基'], true);
+    html += inp('社保主体', '社保主体', r.社保主体, true);
+    html += inp('公积金主体', '公积金主体', r.公积金主体||r.社保主体, true);
+    html += inp('社保增员生效月 (YYYY-MM)', '社保增员生效月', r.社保增员生效月||r.增员时间||'', false);
+    html += inp('公积金增员生效月 (YYYY-MM)', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'', false);
     html += inp('费用主体', '费用主体', r.费用主体, true);
     html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'], false);
     html += grp('只读字段');
     html += ro('员工号', r.emp); html += ro('姓名', r.name);
-    html += ro('变动类型', r.change_type); html += ro('社保主体', r.社保主体);
-    html += ro('参保形式', r.参保形式); html += ro('参保地', r.参保地);
+    html += ro('参保状态', r.参保状态||''); html += ro('参保形式', r.参保形式);
+    html += ro('参保地', r.参保地);
     html += ro('社保基数', r.社保基数); html += ro('公积金基数', r.公积金基数||'');
     html += ro('名单是否确认', r.名单是否确认||'否');
   } else if (type === 'change') {
@@ -1223,10 +1249,10 @@ function openEdit(type, r) {
       html += sel('调整原因', '调整原因', r.调整原因||'正常调整', ['正常调整','错缴调整'], false);
       html += sel('调整类型', '调整类型', r.调整类型||'年度调整', ['年度调整','非年度调整'], false);
     }
-    html += inp('社保增员时间(YYYY-MM)', '社保增员时间', r.社保增员时间||r.增员时间||'', false);
-    html += inp('公积金增员时间(YYYY-MM)', '公积金增员时间', r.公积金增员时间||r.增员时间||'', false);
-    html += inp('社保减员时间(YYYY-MM)', '社保减员时间', r.社保减员时间||r.减员时间||'', false);
-    html += inp('公积金减员时间(YYYY-MM)', '公积金减员时间', r.公积金减员时间||r.减员时间||'', false);
+    html += inp('社保增员生效月(YYYY-MM)', '社保增员生效月', r.社保增员生效月||r.增员时间||'', false);
+    html += inp('公积金增员生效月(YYYY-MM)', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'', false);
+    html += inp('社保减员生效月(YYYY-MM)', '社保减员生效月', r.社保减员生效月||r.减员时间||'', false);
+    html += inp('公积金减员生效月(YYYY-MM)', '公积金减员生效月', r.公积金减员生效月||r.减员时间||'', false);
     html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','合同到期','协议解除','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'], false);
     html += inp('调基时间(YYYY-MM)', '调基时间', r.调基时间||'', false);
     html += inp('补缴开始时间(YYYY-MM)', '补缴开始', r.补缴开始||'', false);
@@ -1394,7 +1420,7 @@ function openNewRow(){
   let html = '';
   html += grp('变动信息');
   html += sel('变动类型','change_type',['增员','减员','补缴','调基'],true);
-  html += sel('数据来源','source',['常规维护','异地申请','紧急增减员'],true);
+  html += sel('数据来源','source',['常规维护','异地申请','紧急工单'],true);
   html += grp('员工基本信息');
   html += inp('员工号','emp',true); html += inp('姓名','name',true);
   html += sel('性别','性别',['男','女'],true);
@@ -1416,10 +1442,10 @@ function openNewRow(){
   html += inp('公积金基数','公积金基数',false);
   html += inp('公积金个人比例','公积金比例',false);
   grp('变动时间');
-  html += inp('社保增员时间(YYYY-MM)','社保增员时间',false);
-  html += inp('公积金增员时间(YYYY-MM)','公积金增员时间',false);
-  html += inp('社保减员时间(YYYY-MM)','社保减员时间',false);
-  html += inp('公积金减员时间(YYYY-MM)','公积金减员时间',false);
+  html += inp('社保增员生效月(YYYY-MM)','社保增员生效月',false);
+  html += inp('公积金增员生效月(YYYY-MM)','公积金增员生效月',false);
+  html += inp('社保减员生效月(YYYY-MM)','社保减员生效月',false);
+  html += inp('公积金减员生效月(YYYY-MM)','公积金减员生效月',false);
   html += sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'],false);
   document.querySelector('#newModal .modal-hd h3').textContent = '新增变动记录';
   fields.innerHTML = html;
