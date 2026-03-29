@@ -161,6 +161,7 @@ tr.er:hover td{background:#FEE2E2;}
 .modal-mask.show{display:flex;}
 .modal-box{background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);width:760px;max-width:94vw;max-height:90vh;display:flex;flex-direction:column;animation:mIn .2s ease;}
 @keyframes mIn{from{opacity:0;transform:translateY(-20px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 14px;border-bottom:1px solid var(--gray-100);}
 .modal-hd h3{font-size:15px;font-weight:600;color:var(--gray-900);}
 .modal-close{background:none;border:none;font-size:18px;color:var(--gray-400);cursor:pointer;line-height:1;padding:4px;border-radius:6px;transition:all .15s;}
@@ -710,8 +711,8 @@ const CF=[
   {tabs:[],ac:[{l:'新增',c:''},{l:'删除',c:''},{l:'导出',c:''}]},
   // 1: 社保公积金申报台账 — 分页：全部/已确认/申报失败；操作：编辑/上传附件/RPA申报/导出
   {tabs:['全部','已确认','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'导出',c:''}]},
-  // 2: 社保公积金缴费台账 — 分页：全部/差异待确认/缴费异常/已缴费/费用明细台账；操作：核定缴费完成/导出
-  {tabs:['全部','差异待确认','缴费异常','已缴费','费用明细台账'],ac:[{l:'核定缴费完成',c:'blue'},{l:'导出',c:''}]},
+  // 2: 社保公积金缴费台账 — 分页：全部/差异待确认/缴费异常/已缴费/费用明细台账；操作：重新计算/核定缴费完成/导出
+  {tabs:['全部','差异待确认','缴费异常','已缴费','费用明细台账'],ac:[{l:'重新计算',c:''},{l:'核定缴费完成',c:'blue'},{l:'导出',c:''}]},
 
 ];
 
@@ -850,12 +851,14 @@ function ltHtml(tabsWithCount,c){
   const ah=c.ac.map(a=>{
     if(a.l==='RPA申报（批量）'&&(card!==1||vt==='申报失败'))return'';
     if(a.l==='核定缴费完成'&&(vt==='已缴费'||vt==='费用明细台账'))return'';
+    if(a.l==='重新计算'&&(card!==2||vt==='缴费异常'||vt==='已缴费'||vt==='费用明细台账'))return'';
     const icon={
       'RPA申报（批量）':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>',
       '导出':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>',
       '核定缴费完成':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>',
+      '重新计算':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
     }[a.l]||'';
-    const onclick = a.l==='新增'?(card===0?'openNewRow()':'openNewConfirmRow()'):a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':a.l==='RPA申报（批量）'?'alert(\'RPA申报发起中\')':a.l==='核定缴费完成'?'confirmPaySelected()':'';
+    const onclick = a.l==='新增'?(card===0?'openNewRow()':'openNewConfirmRow()'):a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':a.l==='RPA申报（批量）'?'alert(\'RPA申报发起中\')':a.l==='核定缴费完成'?'confirmPaySelected()':a.l==='重新计算'?'recalcCost()':'';
     const danger = a.l==='删除'?' style="color:var(--red);border-color:var(--gray-200);"':'';
     return`<button class="btn${a.c==='blue'?' btn-primary':' btn-secondary'} btn-sm btn-icon"${danger} onclick="${onclick}">${icon}${a.l}</button>`;
   }).join('');
@@ -1316,6 +1319,30 @@ function confirmPaySelected(){
   if(!checked.length){alert('请先勾选要核定的账户记录');return;}
   const ids=checked.map(cb=>cb.dataset.id);
   alert('已对 '+ids.length+' 条账户记录发起核定缴费（Demo）\n账户ID：'+ids.join('、'));
+}
+
+function recalcCost(){
+  const checked=Array.from(document.querySelectorAll('tbody input.chk[data-id]:checked'));
+  if(!checked.length){alert('请先勾选要重新计算的账户记录');return;}
+  const ids=checked.map(cb=>cb.dataset.id);
+  // 找到对应账户行，模拟重新计算（Demo：弹出确认提示）
+  const month=getV('smonth');
+  const targetAccts=DA.filter(a=>ids.includes(a.id));
+  const names=targetAccts.map(a=>a.name+(a.sys_type?'('+a.sys_type+')':'')).join('、');
+  if(!confirm('将对以下 '+ids.length+' 条账户记录重新执行费用计算：\n'+names+'\n\n重新计算将按基数×比例重算该账户下所有员工费用明细，确认继续？'))return;
+  // Demo：模拟计算中状态后刷新
+  const btn=document.querySelector('button[onclick="recalcCost()"]');
+  if(btn){
+    const origText=btn.innerHTML;
+    btn.disabled=true;
+    btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> 计算中…';
+    setTimeout(function(){
+      btn.disabled=false;
+      btn.innerHTML=origText;
+      alert('重新计算完成（Demo）\n已对 '+ids.length+' 条账户下所有员工费用明细按基数×比例重新计算。');
+      render();
+    },1200);
+  }
 }
 
 function fillOps() {
