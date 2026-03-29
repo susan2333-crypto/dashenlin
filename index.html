@@ -144,7 +144,38 @@ tr.er:hover td{background:#FEE2E2;}
 .ins-tip-item::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;}
 
 
-/* ── Pagination ── */
+/* ── Import Steps ── */
+.imp-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
+.imp-step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--gray-200);background:#fff;color:var(--gray-400);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.imp-step-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.imp-step-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.imp-step-label{font-size:12px;color:var(--gray-400);font-weight:500;white-space:nowrap;transition:color .2s;}
+.imp-step-label.active{color:var(--blue);font-weight:600;}
+.imp-step-label.done{color:var(--green);}
+.imp-step-line{flex:1;height:2px;background:var(--gray-200);margin:0 8px;margin-bottom:18px;transition:background .2s;min-width:40px;}
+.imp-step-line.done{background:var(--green);}
+
+/* ── Upload drop zone ── */
+.upload-zone{border:2px dashed var(--gray-200);border-radius:var(--radius);padding:36px 24px;text-align:center;cursor:pointer;transition:all .18s;background:var(--gray-50);}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:var(--blue-light);}
+.upload-zone-icon{font-size:32px;margin-bottom:10px;opacity:.5;}
+.upload-zone-title{font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;}
+.upload-zone-sub{font-size:12px;color:var(--gray-400);}
+.upload-file-info{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:var(--radius-sm);margin-top:14px;}
+.upload-file-icon{font-size:20px;}
+.upload-file-name{font-size:13px;font-weight:500;color:var(--blue);flex:1;}
+.upload-file-size{font-size:11px;color:var(--gray-400);}
+.upload-file-rm{background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:14px;padding:2px 4px;border-radius:4px;}
+.upload-file-rm:hover{color:var(--red);background:var(--red-light);}
+
+/* ── Validate result ── */
+.val-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:13px;}
+.val-ok{background:var(--green-light);color:#166534;}
+.val-warn{background:var(--orange-light);color:#92400e;}
+.val-err{background:var(--red-light);color:#991b1b;}
+.val-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+
 
 .pg-txt{font-size:12px;color:var(--gray-400);margin-right:4px;}
 .pb{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;background:#fff;color:var(--gray-600);font-size:13px;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;}
@@ -311,7 +342,71 @@ tr.er:hover td{background:#FEE2E2;}
   </div>
 </div>
 
-<!-- Modal -->
+<!-- 批改弹窗 -->
+<div class="modal-mask" id="batchEditModal" onclick="closeBatchEditModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:720px;">
+    <div class="modal-hd">
+      <h3>批改 — 批量编辑变动记录</h3>
+      <button class="modal-close" onclick="closeBatchEditModal()">✕</button>
+    </div>
+    <div class="modal-bd" style="padding:0;">
+      <!-- 顶部提示条 -->
+      <div id="batchEditBar" style="padding:12px 24px 10px;background:var(--blue-light);border-bottom:1px solid var(--blue-mid);display:flex;align-items:center;gap:8px;font-size:13px;color:var(--blue);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <span id="batchEditBarTxt">已选 <strong>0</strong> 条记录，仅勾选的记录将被修改。留空字段不会覆盖原值。</span>
+      </div>
+      <!-- 字段区域 -->
+      <div style="padding:20px 24px 4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid var(--gray-100);margin-bottom:16px;">可批量修改字段</div>
+        <div class="mrow" id="batchEditFields" style="gap:14px 20px;"></div>
+      </div>
+      <!-- 预览区 -->
+      <div id="batchPreviewWrap" style="padding:0 24px 16px;display:none;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.8px;text-transform:uppercase;padding:12px 0 10px;border-top:1px solid var(--gray-100);margin-top:4px;">修改预览 <span id="batchPreviewCount" style="font-weight:400;color:var(--gray-400);letter-spacing:0;text-transform:none;font-size:12px;"></span></div>
+        <div id="batchPreviewList" style="max-height:160px;overflow-y:auto;font-size:12px;color:var(--gray-600);border:1px solid var(--gray-200);border-radius:6px;background:var(--gray-50);"></div>
+      </div>
+    </div>
+    <div class="modal-ft" style="gap:10px;">
+      <button class="btn btn-secondary" onclick="closeBatchEditModal()">取消</button>
+      <button class="btn btn-secondary" id="batchPreviewBtn" onclick="previewBatchEdit()">预览修改</button>
+      <button class="btn btn-primary" onclick="saveBatchEdit()">确认批改</button>
+    </div>
+  </div>
+</div>
+
+<!-- 导入工作台弹窗 -->
+<div class="modal-mask" id="importModal" onclick="closeImportModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:620px;">
+    <div class="modal-hd">
+      <h3>导入工作台</h3>
+      <button class="modal-close" onclick="closeImportModal()">✕</button>
+    </div>
+    <div class="modal-bd" style="padding:0;">
+      <!-- 步骤条 -->
+      <div id="importSteps" style="display:flex;align-items:center;padding:20px 32px 16px;border-bottom:1px solid var(--gray-100);gap:0;">
+        <div class="imp-step" id="impStep1" data-active="true">
+          <div class="imp-step-dot active">1</div>
+          <span class="imp-step-label active">上传文件</span>
+        </div>
+        <div class="imp-step-line" id="impLine1"></div>
+        <div class="imp-step" id="impStep2">
+          <div class="imp-step-dot">2</div>
+          <span class="imp-step-label">前置校验</span>
+        </div>
+        <div class="imp-step-line" id="impLine2"></div>
+        <div class="imp-step" id="impStep3">
+          <div class="imp-step-dot">3</div>
+          <span class="imp-step-label">确认导入</span>
+        </div>
+      </div>
+      <!-- 步骤内容区 -->
+      <div id="importBody" style="padding:24px 32px 8px;min-height:260px;"></div>
+    </div>
+    <div class="modal-ft" id="importFt" style="gap:10px;"></div>
+  </div>
+</div>
+
+<!-- 编辑弹窗 -->
 <div class="modal-mask" id="editModal" onclick="closeModal(event)">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-hd">
@@ -707,8 +802,8 @@ const D2_JF=[
 let card=0,vt='全部',pg=1,ea=new Set(),df='';const PZ=20;
 // 4个台账对应的 tabs / 操作按钮配置
 const CF=[
-  // 0: 社保公积金变动名单台账 — 无分页Tab；操作：编辑/新增/删除/导出
-  {tabs:[],ac:[{l:'新增',c:''},{l:'删除',c:''},{l:'导出',c:''}]},
+  // 0: 社保公积金变动名单台账 — 无分页Tab；操作：批改/新增/删除/导出
+  {tabs:[],ac:[{l:'批改',c:''},{l:'新增',c:''},{l:'删除',c:''},{l:'导出',c:''}]},
   // 1: 社保公积金申报台账 — 分页：全部/已确认/申报失败；操作：编辑/上传附件/RPA申报/导出
   {tabs:['全部','已确认','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'导出',c:''}]},
   // 2: 社保公积金缴费台账 — 分页：全部/差异待确认/缴费异常/已缴费/费用明细台账；操作：重新计算/核定缴费完成/导出
@@ -998,13 +1093,19 @@ function rChange(changeData, mode){
   let headerHtml;
   if(mode===0){
     // 变动名单台账：无分页Tab，直接显示操作按钮栏
-    const ah=CF[0].ac.map(a=>{
-      const icon={'新增':'','删除':'','导出':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>'}[a.l]||'';
-      const onclick=a.l==='新增'?'openNewRow()':a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':'';
+    const normalBtns = CF[0].ac.map(a=>{
+      const icon={
+        '批改':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+        '新增':'',
+        '删除':'',
+        '导出':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>'
+      }[a.l]||'';
+      const onclick=a.l==='批改'?'openBatchEdit()':a.l==='新增'?'openNewRow()':a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':'';
       const danger=a.l==='删除'?' style="color:var(--red);border-color:var(--gray-200);"':'';
       return`<button class="btn btn-secondary btn-sm btn-icon"${danger} onclick="${onclick}">${icon}${a.l}</button>`;
     }).join('');
-    headerHtml=`<div class="list-header"><div class="tabs"></div><div class="list-actions">${ah}</div></div>`;
+    // 导入按钮是静态元素，渲染时只插入占位符，由 afterRenderChange0() 激活
+    headerHtml=`<div class="list-header"><div class="tabs"></div><div class="list-actions">${normalBtns}<span id="importDropSlot"></span></div></div>`;
   } else {
     // 申报台账：有分页Tab
     const confN=changeData.filter(r=>r.名单是否确认==='是').length;
@@ -1060,6 +1161,9 @@ function rChange(changeData, mode){
       <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${rows}</tbody>
     </table></div>${pgHtml(tot,PZ)}`;
+
+  // 模式0：挂载静态导入按钮到占位符
+  if(mode===0) mountImportDropdown();
 }
 
 
@@ -1497,6 +1601,443 @@ function saveNewRow(){
   alert('保存成功（Demo）');
   closeNewModal();
   render();
+}
+
+let _batchEditTargets = [];
+
+// ── 批改：打开弹窗 ──
+function openBatchEdit(){
+  const checked = Array.from(document.querySelectorAll('tbody input.chk:checked'));
+  if(!checked.length){ alert('请先勾选要批改的记录'); return; }
+  _batchEditTargets = checked.map(cb => {
+    const tr = cb.closest('tr');
+    const empSpan = tr.querySelector('.row-ops-confirm');
+    return empSpan ? empSpan.dataset.emp : null;
+  }).filter(Boolean);
+
+  // 更新提示条
+  document.querySelector('#batchEditBar #batchEditBarTxt').innerHTML =
+    `已选 <strong>${_batchEditTargets.length}</strong> 条记录，仅勾选的记录将被修改。留空字段不会覆盖原值。`;
+
+  // 构建可批改字段表单
+  const fields = document.getElementById('batchEditFields');
+  const inp = (label, key, placeholder) =>
+    `<div class="mfield"><label>${label}</label><input class="minput" data-key="${key}" placeholder="${placeholder||'留空则不修改'}" /></div>`;
+  const sel = (label, key, opts, placeholder) => {
+    const o = opts.map(v=>`<option value="${v}">${v}</option>`).join('');
+    return `<div class="mfield"><label>${label}</label><select class="mselect" data-key="${key}"><option value="">${placeholder||'留空则不修改'}</option>${o}</select></div>`;
+  };
+  const grp = t => `<div class="mfield-group-title">${t}</div>`;
+
+  fields.innerHTML = [
+    grp('变动信息'),
+    sel('变动类型','change_type',['增员','减员','补缴','调基']),
+    sel('数据来源','source',['常规维护','异地申请','紧急工单']),
+    grp('参保信息'),
+    inp('社保主体','社保主体','留空则不修改'),
+    inp('参保地','参保地','留空则不修改'),
+    sel('参保形式','参保形式',['正常参保','异地参保','第三方']),
+    inp('参保险种（多个用顿号分隔）','参保险种','留空则不修改'),
+    inp('社保基数','社保基数','留空则不修改'),
+    inp('公积金基数','公积金基数','留空则不修改'),
+    inp('公积金个人比例（如12%）','公积金比例','留空则不修改'),
+    grp('员工信息'),
+    sel('人员类别','人员类别',['工人','个人','干部','农民']),
+    sel('人员状态','人员状态',['在职','退休','其它','1-4级工残']),
+    sel('用工形式','用工形式',['干部','合同','城镇合同制职工','农村合同制工人','法人代表']),
+    grp('变动时间'),
+    inp('社保增员生效月（YYYY-MM）','社保增员生效月','留空则不修改'),
+    inp('社保减员生效月（YYYY-MM）','社保减员生效月','留空则不修改'),
+    sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同']),
+  ].join('');
+
+  // 重置预览区
+  document.getElementById('batchPreviewWrap').style.display='none';
+  document.getElementById('batchPreviewList').innerHTML='';
+
+  document.getElementById('batchEditModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeBatchEditModal(e){
+  if(e && e.target !== document.getElementById('batchEditModal')) return;
+  document.getElementById('batchEditModal').classList.remove('show');
+  document.body.style.overflow='';
+  _batchEditTargets=[];
+}
+
+// ── 批改：获取当前表单已填写的字段 ──
+function getBatchEditValues(){
+  const result={};
+  document.querySelectorAll('#batchEditFields [data-key]').forEach(el=>{
+    const v=el.value.trim();
+    if(v) result[el.dataset.key]=v;
+  });
+  return result;
+}
+
+// ── 批改：预览 ──
+function previewBatchEdit(){
+  const vals=getBatchEditValues();
+  const keys=Object.keys(vals);
+  if(!keys.length){ alert('请至少填写一个要修改的字段'); return; }
+
+  const wrap=document.getElementById('batchPreviewWrap');
+  const list=document.getElementById('batchPreviewList');
+  const count=document.getElementById('batchPreviewCount');
+
+  const month=getV('smonth');
+  const mdata=MONTH_DATA[month]||{change:[]};
+  const rows=mdata.change;
+
+  const keyLabelMap={
+    change_type:'变动类型',source:'数据来源',社保主体:'社保主体',
+    参保地:'参保地',参保形式:'参保形式',参保险种:'参保险种',
+    社保基数:'社保基数',公积金基数:'公积金基数',公积金比例:'公积金个人比例',
+    人员类别:'人员类别',人员状态:'人员状态',用工形式:'用工形式',
+    社保增员生效月:'社保增员生效月',社保减员生效月:'社保减员生效月',减员原因:'减员原因',
+  };
+
+  let html='';
+  _batchEditTargets.forEach((emp,idx)=>{
+    const r=rows.find(x=>x.emp===emp);
+    const name=r?r.name:emp;
+    const changes=keys.map(k=>{
+      const oldVal=r?( k==='change_type'?r.change_type:k==='source'?r.source:(r[k]||'') ):'—';
+      return `<span style="color:var(--gray-500)">${keyLabelMap[k]||k}：</span><span style="color:var(--red);text-decoration:line-through;">${oldVal||'—'}</span> → <span style="color:var(--green)">${vals[k]}</span>`;
+    }).join('　');
+    html+=`<div style="padding:8px 12px;border-bottom:1px solid var(--gray-200);display:flex;align-items:flex-start;gap:10px;${idx%2===1?'background:#fff':''}">
+      <span style="font-weight:500;min-width:64px;color:var(--gray-700)">${name}</span>
+      <span style="color:var(--gray-400);font-size:11px;min-width:88px">${emp}</span>
+      <span style="font-size:12px;flex:1;line-height:1.7">${changes}</span>
+    </div>`;
+  });
+  list.innerHTML=html;
+  count.textContent=`· ${_batchEditTargets.length} 条记录将被修改`;
+  wrap.style.display='block';
+}
+
+// ── 批改：确认保存 ──
+function saveBatchEdit(){
+  const vals=getBatchEditValues();
+  const keys=Object.keys(vals);
+  if(!keys.length){ alert('请至少填写一个要修改的字段'); return; }
+
+  const month=getV('smonth');
+  const mdata=MONTH_DATA[month]||{change:[]};
+  const rows=mdata.change;
+
+  let updated=0;
+  _batchEditTargets.forEach(emp=>{
+    const r=rows.find(x=>x.emp===emp);
+    if(!r) return;
+    keys.forEach(k=>{
+      if(k==='change_type') r.change_type=vals[k];
+      else if(k==='source') r.source=vals[k];
+      else r[k]=vals[k];
+    });
+    updated++;
+  });
+
+  closeBatchEditModal();
+  render();
+  showToast('批改成功，已更新 '+updated+' 条记录','success');
+}
+
+
+
+// ── 导入下拉按钮：每次 render 后挂载到占位符 ──
+function mountImportDropdown(){
+  const slot = document.getElementById('importDropSlot');
+  if(!slot) return;
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;display:inline-flex;';
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-secondary btn-sm btn-icon';
+  btn.style.paddingRight = '8px';
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>导入<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left:3px;opacity:.55"><path d="m6 9 6 6 6-6"/></svg>';
+
+  const menu = document.createElement('div');
+  menu.style.cssText = 'display:none;position:absolute;top:calc(100% + 4px);right:0;z-index:400;background:#fff;border:1px solid var(--gray-200);border-radius:6px;box-shadow:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.06);min-width:112px;padding:4px 0;white-space:nowrap;';
+
+  function mkItem(iconHtml, label, onClick){
+    const item = document.createElement('div');
+    item.style.cssText = 'padding:8px 14px;font-size:13px;color:var(--gray-700);cursor:pointer;display:flex;align-items:center;gap:8px;';
+    item.innerHTML = iconHtml + label;
+    item.addEventListener('mouseenter', ()=>{ item.style.background='var(--gray-50)'; });
+    item.addEventListener('mouseleave', ()=>{ item.style.background=''; });
+    item.addEventListener('click', ()=>{ menu.style.display='none'; onClick(); });
+    return item;
+  }
+
+  const iconUp = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
+  const iconDl = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>';
+  menu.appendChild(mkItem(iconUp, '导入', openImportModal));
+  menu.appendChild(mkItem(iconDl, '下载模版', downloadTemplate));
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    const isOpen = menu.style.display !== 'none';
+    menu.style.display = isOpen ? 'none' : 'block';
+    if(!isOpen){
+      const close = function(ev){
+        if(!wrap.contains(ev.target)){ menu.style.display='none'; document.removeEventListener('click',close); }
+      };
+      setTimeout(()=>document.addEventListener('click',close), 0);
+    }
+  });
+
+  wrap.appendChild(btn);
+  wrap.appendChild(menu);
+  slot.appendChild(wrap);
+}
+
+
+
+function downloadTemplate(){
+  showToast('已下载变动名单导入模版.xlsx','info');
+}
+
+// ── 导入工作台 ──
+// 模板标准列，用于格式校验
+const TEMPLATE_COLS=['变动类型','数据来源','员工号','姓名','性别','证件类型','证件号','出生日期','手机号','人员类别','人员状态','用工形式','职等','社保主体','公积金主体','费用主体','成本中心','参保形式','参保地','参保险种','公积金个人比例','社保基数','公积金基数','增员时间','减员时间','减员原因','调基时间','补缴开始时间','补缴结束时间','补缴原因'];
+
+let _importStep=1;
+let _importFile=null;
+let _importValResult=null; // 'ok'|'warn'|'error'
+
+function openImportModal(){
+  _importStep=1;
+  _importFile=null;
+  _importValResult=null;
+  renderImportStep();
+  document.getElementById('importModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeImportModal(e){
+  if(e&&e.target!==document.getElementById('importModal'))return;
+  document.getElementById('importModal').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+function setImportStep(step){
+  // 更新步骤条状态
+  [1,2,3].forEach(i=>{
+    const dot=document.querySelector(`#impStep${i} .imp-step-dot`);
+    const lbl=document.querySelector(`#impStep${i} .imp-step-label`);
+    if(!dot||!lbl)return;
+    dot.className='imp-step-dot'+(i<step?' done':i===step?' active':'');
+    lbl.className='imp-step-label'+(i<step?' done':i===step?' active':'');
+  });
+  [1,2].forEach(i=>{
+    const line=document.getElementById('impLine'+i);
+    if(line) line.className='imp-step-line'+(step>i?' done':'');
+  });
+}
+
+function renderImportStep(){
+  setImportStep(_importStep);
+  const body=document.getElementById('importBody');
+  const ft=document.getElementById('importFt');
+
+  if(_importStep===1){
+    // ── 步骤1：上传文件 ──
+    const fileInfo=_importFile?`
+      <div class="upload-file-info">
+        <span class="upload-file-icon">📊</span>
+        <span class="upload-file-name">${_importFile.name}</span>
+        <span class="upload-file-size">${(_importFile.size/1024).toFixed(1)} KB</span>
+        <button class="upload-file-rm" onclick="removeImportFile()" title="移除文件">✕</button>
+      </div>`:
+      `<div style="margin-top:14px;font-size:12px;color:var(--gray-400);text-align:center;">
+        支持 <strong>.xlsx</strong> / <strong>.xls</strong> 格式，文件大小不超过 10MB
+      </div>`;
+
+    body.innerHTML=`
+      <div style="margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">上传变动名单文件</div>
+        <div style="font-size:12px;color:var(--gray-400);">请使用系统标准模版填写数据后上传，格式不符将在下一步校验中提示</div>
+      </div>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('importFileInput').click()"
+        ondragover="event.preventDefault();this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="handleImportDrop(event)">
+        <div class="upload-zone-icon">📂</div>
+        <div class="upload-zone-title">点击选择文件或拖拽至此处</div>
+        <div class="upload-zone-sub">支持 .xlsx / .xls 格式</div>
+      </div>
+      <input type="file" id="importFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleImportFile(this.files[0])"/>
+      ${fileInfo}
+      <div style="margin-top:20px;padding:12px 14px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-200);">
+        <div style="font-size:12px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">模版标准列（共 ${TEMPLATE_COLS.length} 列）</div>
+        <div style="font-size:11px;color:var(--gray-400);line-height:1.9;">${TEMPLATE_COLS.join(' · ')}</div>
+      </div>`;
+
+    ft.innerHTML=`
+      <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="goImportStep2()" ${_importFile?'':'disabled'} id="impNextBtn1">下一步：前置校验</button>`;
+  }
+
+  else if(_importStep===2){
+    // ── 步骤2：前置校验 ──
+    // 模拟校验逻辑：根据文件名判断是否符合格式
+    let valRows='';
+    let hasError=false;
+    const fname=_importFile?_importFile.name:'';
+    const isTemplate=fname.includes('模版')||fname.includes('template')||fname.includes('Template');
+
+    // 模拟校验项
+    const checks=[
+      {label:'文件格式',ok:fname.endsWith('.xlsx')||fname.endsWith('.xls'),errMsg:'文件格式不符，请上传 .xlsx 或 .xls 文件'},
+      {label:'Sheet 名称',ok:isTemplate||Math.random()>0.3,warnMsg:'未检测到标准 Sheet 名称「变动名单」，请确认工作表名称是否正确',warn:true},
+      {label:'列头完整性',ok:isTemplate||Math.random()>0.25,errMsg:`列头与模版不一致：缺少「减员原因」「调基时间」等 ${Math.floor(Math.random()*3+1)} 列`},
+      {label:'必填字段',ok:isTemplate||Math.random()>0.2,errMsg:`第 ${Math.floor(Math.random()*10+2)} 行「员工号」为空，必填字段不可为空`},
+      {label:'变动类型枚举值',ok:isTemplate||Math.random()>0.15,warnMsg:'第 5 行变动类型「加入」不在枚举范围内（增员/减员/补缴/调基），已标记，确认导入后将跳过该行',warn:true},
+      {label:'日期格式',ok:isTemplate||Math.random()>0.1,warnMsg:'第 8 行「增员时间」格式为「2026/03」，建议统一为「YYYY-MM」格式',warn:true},
+      {label:'数据行数统计',ok:true,info:true,infoMsg:`检测到 ${Math.floor(Math.random()*30+10)} 条数据行，其中增员 ${Math.floor(Math.random()*15+5)} 条、减员 ${Math.floor(Math.random()*10+3)} 条`},
+    ];
+
+    checks.forEach(c=>{
+      if(c.ok){
+        if(c.info){
+          valRows+=`<div class="val-row" style="background:var(--blue-light);color:var(--blue);">
+            <span class="val-icon">ℹ️</span>
+            <div><span style="font-weight:600">${c.label}</span>　${c.infoMsg}</div>
+          </div>`;
+        } else {
+          valRows+=`<div class="val-row val-ok">
+            <span class="val-icon">✅</span>
+            <div><span style="font-weight:600">${c.label}</span>　校验通过</div>
+          </div>`;
+        }
+      } else if(c.warn){
+        valRows+=`<div class="val-row val-warn">
+          <span class="val-icon">⚠️</span>
+          <div><span style="font-weight:600">${c.label}</span>　${c.warnMsg}</div>
+        </div>`;
+      } else {
+        hasError=true;
+        valRows+=`<div class="val-row val-err">
+          <span class="val-icon">❌</span>
+          <div><span style="font-weight:600">${c.label}</span>　${c.errMsg}</div>
+        </div>`;
+      }
+    });
+
+    _importValResult=hasError?'error':'ok';
+
+    const summaryColor=hasError?'var(--red)':'var(--green)';
+    const summaryBg=hasError?'var(--red-light)':'var(--green-light)';
+    const summaryText=hasError?'校验未通过，请修正文件后重新上传':'校验通过，可继续确认导入';
+    const summaryIcon=hasError?'❌':'✅';
+
+    body.innerHTML=`
+      <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:2px;">前置校验结果</div>
+          <div style="font-size:12px;color:var(--gray-400);">文件：${fname}</div>
+        </div>
+        <div style="padding:6px 14px;border-radius:20px;background:${summaryBg};color:${summaryColor};font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;">
+          ${summaryIcon} ${summaryText}
+        </div>
+      </div>
+      <div style="max-height:300px;overflow-y:auto;">${valRows}</div>`;
+
+    ft.innerHTML=`
+      <button class="btn btn-secondary" onclick="goImportStep(1)">← 返回重新上传</button>
+      <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="goImportStep3()" ${hasError?'disabled':''}>下一步：确认导入</button>`;
+  }
+
+  else if(_importStep===3){
+    // ── 步骤3：确认导入 ──
+    const month=getV('smonth')||'2026-03';
+    const mockCount=Math.floor(Math.random()*20+8);
+    const incN=Math.floor(mockCount*0.5);
+    const decN=Math.floor(mockCount*0.3);
+    const othN=mockCount-incN-decN;
+
+    body.innerHTML=`
+      <div style="text-align:center;padding:12px 0 20px;">
+        <div style="font-size:36px;margin-bottom:12px;">📋</div>
+        <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">即将导入以下数据</div>
+        <div style="font-size:12px;color:var(--gray-400);">文件：${_importFile?_importFile.name:''}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+        <div style="text-align:center;padding:16px;background:var(--blue-light);border-radius:var(--radius);border:1px solid var(--blue-mid);">
+          <div style="font-size:24px;font-weight:700;color:var(--blue);line-height:1">${incN}</div>
+          <div style="font-size:12px;color:var(--blue);margin-top:4px;">增员</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--gray-100);border-radius:var(--radius);border:1px solid var(--gray-200);">
+          <div style="font-size:24px;font-weight:700;color:var(--gray-600);line-height:1">${decN}</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">减员</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--orange-light);border-radius:var(--radius);border:1px solid #ffd591;">
+          <div style="font-size:24px;font-weight:700;color:var(--orange);line-height:1">${othN}</div>
+          <div style="font-size:12px;color:var(--orange);margin-top:4px;">补缴/调基</div>
+        </div>
+      </div>
+      <div style="padding:12px 16px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--gray-200);font-size:12px;color:var(--gray-600);line-height:1.8;">
+        <div style="font-weight:600;color:var(--gray-700);margin-bottom:4px;">导入说明</div>
+        <div>· 数据将写入 <strong>${month}</strong> 月度变动名单台账（t_roster_change）</div>
+        <div>· 导入后名单是否确认默认为「否」，需人事对接人在确认名单台账操作确认</div>
+        <div>· 重复员工号的记录将追加写入，不覆盖已有数据</div>
+        <div>· 校验时标记的警告行将被跳过，可在台账中手动补录</div>
+      </div>`;
+
+    ft.innerHTML=`
+      <button class="btn btn-secondary" onclick="goImportStep(2)">← 返回校验</button>
+      <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()">确认导入</button>`;
+  }
+}
+
+function goImportStep(n){_importStep=n;renderImportStep();}
+function goImportStep2(){if(!_importFile){alert('请先选择文件');return;}_importStep=2;renderImportStep();}
+function goImportStep3(){_importStep=3;renderImportStep();}
+
+function handleImportFile(file){
+  if(!file)return;
+  if(!file.name.match(/\.(xlsx|xls)$/i)){alert('请上传 .xlsx 或 .xls 格式的文件');return;}
+  if(file.size>10*1024*1024){alert('文件大小不能超过 10MB');return;}
+  _importFile=file;
+  renderImportStep();
+  // 上传后自动激活「下一步」
+  const btn=document.getElementById('impNextBtn1');
+  if(btn) btn.disabled=false;
+}
+
+function handleImportDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file) handleImportFile(file);
+}
+
+function removeImportFile(){
+  _importFile=null;
+  renderImportStep();
+}
+
+function confirmImport(){
+  closeImportModal();
+  render();
+  showToast(`导入成功，已写入变动名单台账`,'success');
+}
+
+// ── 通用 Toast ──
+function showToast(msg,type){
+  const colors={success:'#52c41a',info:'var(--blue)',warn:'var(--orange)'};
+  const icons={success:'<path d="M20 6 9 17l-5-5"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>',warn:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'};
+  const c=colors[type]||colors.info;
+  const ic=icons[type]||icons.info;
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;animation:fadeInUp .2s ease;';
+  t.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.5">${ic}</svg>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},2600);
 }
 
 let _delTargets = [];
