@@ -1,4 +1,4 @@
-<!-- v5-roster-confirm-update -->
+<!-- v6-roster-prd-5.4-update -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -296,9 +296,9 @@ tr.er:hover td{background:#FEE2E2;}
   </div>
   <div class="card" id="cd2" onclick="sw(2)">
     <div class="card-icon-wrap ic-orange"></div>
-    <div class="card-num" id="cn2">12人</div>
+    <div class="card-num" id="cn2">12个</div>
     <div class="card-title">社保公积金缴费台账</div>
-    <div class="card-sub" id="cs2">差异待确认2人 · 缴费异常2人 · 应缴12人 · 已缴费4人</div>
+    <div class="card-sub" id="cs2">差异待确认2个 · 缴费异常2个 · 应缴12个 · 已缴费4个</div>
   </div>
 
 </div>
@@ -357,7 +357,6 @@ tr.er:hover td{background:#FEE2E2;}
       </div>
       <!-- 字段区域 -->
       <div style="padding:20px 24px 4px;">
-        <div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.8px;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid var(--gray-100);margin-bottom:16px;">可批量修改字段</div>
         <div class="mrow" id="batchEditFields" style="gap:14px 20px;"></div>
       </div>
       <!-- 预览区 -->
@@ -569,16 +568,30 @@ function genData(month,total){
       公积金增员时间:ct==='增员'?month:'',
       社保减员时间:ct==='减员'?month:'',
       公积金减员时间:ct==='减员'?month:'',
+      社保增员生效月:ct==='增员'?month:'',
+      公积金增员生效月:ct==='增员'?month:'',
+      社保减员生效月:ct==='减员'?month:'',
+      公积金减员生效月:ct==='减员'?month:'',
       银行账户类别:ct==='增员'&&i%8===0?'对私数字钱包':ct==='增员'?'对私':'',
+      公积金单位比例:(ct==='增员'||ct==='减员'||ct==='补缴')?['12%','10%','8%'][i%3]:'',
+      公积金单位费用:(ct==='增员'||ct==='减员'||ct==='补缴')?String(Math.round([5000,6000,8000,10000][i%4]*[0.12,0.10,0.08][i%3])):'',
+      公积金个人费用:(ct==='增员'||ct==='减员'||ct==='补缴')?String(Math.round([5000,6000,8000,10000][i%4]*[0.12,0.10,0.08][i%3])):'',
+      公积金合计:(ct==='增员'||ct==='减员'||ct==='补缴')?String(Math.round([5000,6000,8000,10000][i%4]*[0.12,0.10,0.08][i%3]*2)):'',
       启封原因:ct==='增员'&&i%4===0?['正常上班启封','继续缴存','其他'][i%3]:'',
       开户原因:ct==='增员'&&i%3===0?['新增','调入','其他'][i%3]:'',
       开户原因:ct==='增员'?['新增','调入','其他'][i%3]:'',
       调整原因:ct==='调基'?['正常调整','错缴调整'][i%2]:'',
       调整类型:ct==='调基'?['年度调整','非年度调整'][i%2]:'',
       补缴月份:ct==='补缴'?month:'',
+      社保补缴月份:ct==='补缴'?String(i%3+1):'',
+      公积金补缴月份:ct==='补缴'?String(i%3+1):'',
       补缴类型:ct==='补缴'?(['欠缴','其他'][i%2]==='欠缴'?'欠缴补缴':'少缴补缴'):'',
       source:src,
       申报类型:ct==='在保人员'?'':ct,
+      参加工作日期:ct==='增员'?`20${String(5+i%15).padStart(2,'0')}-${String((i%12)+1).padStart(2,'0')}-01`:'',
+      就业形式:ct==='增员'?['雇佣就业','劳务派遣'][i%6===0?1:0]:'',
+      是否参加医疗补助:ct==='增员'?['否','否','否','否','是'][i%5]:'否',
+      所属学校:ct==='增员'&&i%10===7?['广州大学','中山大学','暨南大学'][i%3]:'',
       rpa_time:confirmed==='是'?month+'-'+String((i%9)+1).padStart(2,'0')+' '+String(8+(i%10)).padStart(2,'0')+':'+String(i%60).padStart(2,'0')+':00':'',
       附件:confirmed==='是'&&!aF(rpa)?[{name:'申报附件-'+(i+1)+'.pdf',type:'社保申报附件'}]:[],
       bank_name:['中国工商银行','招商银行','中国建设银行','中国农业银行'][i%4],
@@ -915,8 +928,8 @@ function render(){
   const errN=monthDA.filter(a=>a.pay_state==='缴费异常').length;
   const paidN=monthDA.filter(a=>a.pay_state==='已缴费').length;
   const totalN=monthDA.length;
-  document.getElementById('cn2').textContent=totalN+'人';
-  document.getElementById('cs2').textContent=`差异待确认${diffN}人 · 缴费异常${errN}人 · 应缴${totalN}人 · 已缴费${paidN}人`;
+  document.getElementById('cn2').textContent=totalN+'个';
+  document.getElementById('cs2').textContent=`差异待确认${diffN}个 · 缴费异常${errN}个 · 应缴${totalN}个 · 已缴费${paidN}个`;
 
   // 已选条件
   const labels={smonth:'月份',sn:'员工姓名',se:'员工号',sunit:'单位名称',ssj:'社保主体',ss:'申报系统',sft:'失败类型'};
@@ -1011,9 +1024,9 @@ function rowCells(r){
     <td>${tx(r.原参保地||'')}</td>
     <td>${tx(r.申请参保地||'')}</td>
     <td>${insCell(r.参保险种||'',240)}</td>
-    <td>${tx(r.公积金比例||'')}</td>
-    <td>${tx(r.原公积金比例||'')}</td>
-    <td>${tx(r.现公积金比例||'')}</td>
+    <td>${tx(r.公积金个人比例||r.公积金比例||'')}</td>
+    <td>${tx(r.原公积金个人比例||r.原公积金比例||'')}</td>
+    <td>${tx(r.现公积金个人比例||r.现公积金比例||'')}</td>
     <td>${tx(r.社保基数||'')}</td>
     <td>${tx(r.原社保基数||'')}</td>
     <td>${tx(r.现社保基数||'')}</td>
@@ -1314,68 +1327,118 @@ function openEdit(type, r) {
   const grp = (t) => `<div class="mfield-group-title">${t}</div>`;
   let html = '';
   if (type === 'confirm') {
-    html += grp('可编辑字段（人事对接人权限）');
-    html += sel('变动类型', 'change_type', r.change_type||'增员', ['增员','减员','补缴','调基'], true);
-    html += inp('社保主体', '社保主体', r.社保主体, true);
-    html += inp('公积金主体', '公积金主体', r.公积金主体||r.社保主体, true);
-    html += inp('社保增员生效月 (YYYY-MM)', '社保增员生效月', r.社保增员生效月||r.增员时间||'', false);
-    html += inp('公积金增员生效月 (YYYY-MM)', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'', false);
-    html += inp('费用主体', '费用主体', r.费用主体, true);
-    html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'], false);
-    html += grp('只读字段');
     html += ro('员工号', r.emp); html += ro('姓名', r.name);
-    html += ro('参保状态', r.参保状态||''); html += ro('参保形式', r.参保形式);
-    html += ro('参保地', r.参保地);
-    html += ro('社保基数', r.社保基数); html += ro('公积金基数', r.公积金基数||'');
-    html += ro('名单是否确认', r.名单是否确认||'否');
-  } else if (type === 'change') {
-    html += ro('员工号', r.emp);
-    html += inp('姓名', 'name', r.name, true);
-    if(r.change_type==='增员'){ html += sel('就业前身份', '就业前身份', r.就业前身份||'', ['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他'], false); }
-    html += sel('性别', '性别', r.性别, ['男','女'], true);
-    html += inp('民族', '民族', r.民族, true);
-    html += inp('出生日期', '出生日期', r.出生日期, true);
-    html += inp('手机号码', '手机号码', r.手机号||r.手机号码||'', true);
-    html += sel('婚姻状况', '婚姻状况', r.婚姻状况, ['已婚','未婚','离异','丧偶'], true);
-    html += sel('学历', '学历', r.学历, ['本科','大专','硕士','博士','高中','中专','其他'], true);
-    html += sel('证件类型', '证件类型', r.证件类型, ['居民身份证','护照','港澳台通行证','外国人永居证'], true);
-    html += inp('证件号', '证件号', r.证件号, true);
-    html += sel('人员类别', '人员类别', r.人员类别||'', ['工人','个人','干部','农民'], false);
-    html += sel('人员状态', '人员状态', r.人员状态||'在职', ['在职','退休','其它','1-4级工残'], false);
-    html += sel('用工形式', '用工形式', r.用工形式||'', ['干部','合同','城镇合同制职工','农村合同制工人','法人代表'], false);
-    html += inp('职等', '职等', r.职等, true);
-    html += inp('通讯地址', '通讯地址', r.通讯地址||'', false);
-    html += inp('银行', '银行', r.银行||'', false);
-    html += inp('账号', '账号', r.账号||'', false);
-    html += ro('社保主体', r.社保主体); html += ro('公积金主体', r.公积金主体);
-    html += ro('费用主体', r.费用主体); html += ro('成本中心', r.成本中心);
-    html += ro('参保形式', r.参保形式); html += ro('参保地', r.参保地);
-    html += ro('社保基数', r.社保基数); html += ro('公积金基数', r.公积金基数||'');
     html += ro('变动类型', r.change_type); html += ro('数据来源', r.source);
-    if(r.change_type==='调基'){
-      html += sel('调整原因', '调整原因', r.调整原因||'正常调整', ['正常调整','错缴调整'], false);
-      html += sel('调整类型', '调整类型', r.调整类型||'年度调整', ['年度调整','非年度调整'], false);
+    html += ro('参保地', r.参保地);
+    if(r.change_type==='增员'){
+      html += sel('就业前身份', '就业前身份', r.就业前身份||'', ['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他']);
     }
-    html += inp('社保增员生效月(YYYY-MM)', '社保增员生效月', r.社保增员生效月||r.增员时间||'', false);
-    html += inp('公积金增员生效月(YYYY-MM)', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'', false);
-    html += inp('社保减员生效月(YYYY-MM)', '社保减员生效月', r.社保减员生效月||r.减员时间||'', false);
-    html += inp('公积金减员生效月(YYYY-MM)', '公积金减员生效月', r.公积金减员生效月||r.减员时间||'', false);
-    html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','合同到期','协议解除','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'], false);
-    html += inp('调基时间(YYYY-MM)', '调基时间', r.调基时间||'', false);
-    html += inp('补缴开始时间(YYYY-MM)', '补缴开始', r.补缴开始||'', false);
-    html += inp('补缴结束时间(YYYY-MM)', '补缴结束', r.补缴结束||'', false);
-    html += sel('补缴原因', '补缴原因', r.补缴原因||'', ['','欠缴','少缴','其他'], false);
+    html += sel('人员类别', '人员类别', r.人员类别||'', ['工人','个人','干部','农民']);
+    html += sel('人员状态', '人员状态', r.人员状态||'在职', ['在职','退休','其它','1-4级工残']);
+    html += sel('用工形式', '用工形式', r.用工形式||'合同', ['干部','合同','城镇合同制职工','农村合同制工人','法人代表']);
+    if(r.change_type==='增员'){
+      html += sel('银行账户类别', '银行账户类别', r.银行账户类别||'对私', ['对私','对私数字钱包']);
+    }
+    html += inp('社保主体', '社保主体', r.社保主体||'');
+    html += inp('公积金主体', '公积金主体', r.公积金主体||r.社保主体||'');
+    html += inp('费用主体', '费用主体', r.费用主体||'');
+    html += inp('责任中心名称', '责任中心名称', r.责任中心名称||r.成本中心||'');
+    html += inp('责任中心编码', '责任中心编码', r.责任中心编码||'');
+    html += inp('特定工伤险主体', '特定工伤险主体', r.特定工伤主体||'');
+    html += sel('参保状态', '参保状态', r.参保状态||'未缴纳', ['未缴纳','已缴纳','已停保','不缴纳']);
+    html += sel('参保形式', '参保形式', r.参保形式||'正常参保', ['正常参保','异地参保','第三方']);
+    html += inp('参保险种', '参保险种', r.参保险种||'');
+    html += inp('公积金个人比例', '公积金个人比例', r.公积金个人比例||r.公积金比例||'');
+    if(r.change_type==='调基'){
+      html += inp('现公积金个人比例', '现公积金个人比例', r.现公积金个人比例||r.现公积金比例||'');
+    }
+    html += inp('社保基数', '社保基数', r.社保基数||'');
+    if(r.change_type==='调基'){
+      html += inp('现社保基数', '现社保基数', r.现社保基数||'');
+    }
+    html += inp('公积金基数', '公积金基数', r.公积金基数||'');
+    if(r.change_type==='调基'){
+      html += inp('现公积金基数', '现公积金基数', r.现公积金基数||'');
+    }
+    html += sel('缴费档次', '缴费档次', r.医疗缴费档次||'一档', ['一档','二档']);
+    if(r.change_type==='增员'){
+      html += sel('启封原因', '启封原因', r.启封原因||'', ['','正常上班启封','继续缴存','其他']);
+      html += sel('开户原因', '开户原因', r.开户原因||'', ['','新增','调入','其他']);
+    }
+    html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同']);
+    html += sel('特定人员类型', '特定人员类型', r.特定人员||'', ['','超过法定退休年龄人员（未享受养老金或退休金）','已享受养老金或退休金人员','已享受伤残津贴','病残津贴人员','家政服务机构家政从业人员','新业态从业人员','实习学生（含勤工俭学）','见习人员','村(社区)两委人员','志愿者','快递从业人员','运输车辆的司机和乘务人员']);
+    if(r.change_type==='调基'){
+      html += sel('调整原因', '调整原因', r.调整原因||'正常调整', ['正常调整','错缴调整']);
+      html += sel('调整类型', '调整类型', r.调整类型||'年度调整', ['年度调整','非年度调整']);
+    }
+    if(r.change_type==='补缴'){
+      html += inp('社保补缴开始时间', '社保补缴开始时间', r.社保补缴开始时间||r.补缴开始||'');
+      html += inp('社保补缴结束时间', '社保补缴结束时间', r.社保补缴结束时间||r.补缴结束||'');
+      html += inp('公积金补缴开始时间', '公积金补缴开始时间', r.公积金补缴开始时间||r.补缴开始||'');
+      html += inp('公积金补缴结束时间', '公积金补缴结束时间', r.公积金补缴结束时间||r.补缴结束||'');
+    }
+  } else if (type === 'change') {
+    // 只读基础信息
+    html += ro('员工号', r.emp); html += ro('姓名', r.name);
+    html += ro('变动类型', r.change_type); html += ro('数据来源', r.source);
+    html += ro('社保主体', r.社保主体); html += ro('参保地', r.参保地);
+    // 标绿字段（经办人可编辑）
+    if(r.change_type==='增员'){
+      html += sel('就业前身份', '就业前身份', r.就业前身份||'', ['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他']);
+    }
+    html += sel('人员类别', '人员类别', r.人员类别||'', ['工人','个人','干部','农民']);
+    html += sel('人员状态', '人员状态', r.人员状态||'在职', ['在职','退休','其它','1-4级工残']);
+    html += sel('用工形式', '用工形式', r.用工形式||'合同', ['干部','合同','城镇合同制职工','农村合同制工人','法人代表']);
+    if(r.change_type==='增员'){
+      html += sel('银行账户类别', '银行账户类别', r.银行账户类别||'对私', ['对私','对私数字钱包']);
+    }
+    html += inp('费用主体', '费用主体', r.费用主体);
+    html += inp('责任中心名称', '责任中心名称', r.责任中心名称||r.成本中心||'');
+    html += inp('责任中心编码', '责任中心编码', r.责任中心编码||'');
+    html += sel('参保状态', '参保状态', r.参保状态||'未缴纳', ['未缴纳','已缴纳','已停保','不缴纳']);
+    html += sel('参保形式', '参保形式', r.参保形式||'正常参保', ['正常参保','异地参保','第三方']);
+    html += inp('参保险种', '参保险种', r.参保险种||'');
+    html += inp('公积金个人比例', '公积金个人比例', r.公积金个人比例||r.公积金比例||'');
+    if(r.change_type==='调基'){
+      html += inp('现公积金个人比例', '现公积金个人比例', r.现公积金个人比例||r.现公积金比例||'');
+    }
+    html += inp('社保基数', '社保基数', r.社保基数||'');
+    if(r.change_type==='调基'){
+      html += inp('现社保基数', '现社保基数', r.现社保基数||'');
+    }
+    html += inp('公积金基数', '公积金基数', r.公积金基数||'');
+    if(r.change_type==='调基'){
+      html += inp('现公积金基数', '现公积金基数', r.现公积金基数||'');
+    }
+    html += sel('缴费档次', '缴费档次', r.医疗缴费档次||'一档', ['一档','二档']);
+    html += inp('社保增员生效月', '社保增员生效月', r.社保增员生效月||r.增员时间||'');
+    html += inp('公积金增员生效月', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'');
+    html += inp('社保减员生效月', '社保减员生效月', r.社保减员生效月||r.减员时间||'');
+    html += inp('公积金减员生效月', '公积金减员生效月', r.公积金减员生效月||r.减员时间||'');
+    if(r.change_type==='增员'){
+      html += sel('启封原因', '启封原因', r.启封原因||'', ['','正常上班启封','继续缴存','其他']);
+      html += sel('开户原因', '开户原因', r.开户原因||'', ['','新增','调入','其他']);
+    }
+    html += sel('减员原因', '减员原因', r.减员原因||'', ['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同']);
+    html += sel('特定人员类型', '特定人员类型', r.特定人员||'', ['','超过法定退休年龄人员（未享受养老金或退休金）','已享受养老金或退休金人员','已享受伤残津贴','病残津贴人员','家政服务机构家政从业人员','新业态从业人员','实习学生（含勤工俭学）','见习人员','村(社区)两委人员','志愿者','快递从业人员','运输车辆的司机和乘务人员']);
+    if(r.change_type==='调基'){
+      html += sel('调整原因', '调整原因', r.调整原因||'正常调整', ['正常调整','错缴调整']);
+      html += sel('调整类型', '调整类型', r.调整类型||'年度调整', ['年度调整','非年度调整']);
+    }
+    if(r.change_type==='补缴'){
+      html += inp('社保补缴开始时间', '社保补缴开始时间', r.社保补缴开始时间||r.补缴开始||'');
+      html += inp('社保补缴结束时间', '社保补缴结束时间', r.社保补缴结束时间||r.补缴结束||'');
+      html += inp('公积金补缴开始时间', '公积金补缴开始时间', r.公积金补缴开始时间||r.补缴开始||'');
+      html += inp('公积金补缴结束时间', '公积金补缴结束时间', r.公积金补缴结束时间||r.补缴结束||'');
+    }
   } else if (type === 'cost') {
-    html += grp('养老保险');
-    html += inp('养老基数', 'ydj', r.sb||'', true);
+      html += inp('养老基数', 'ydj', r.sb||'', true);
     html += inp('单位比例(%)', 'ydbl_dw', '8', false);
     html += inp('个人比例(%)', 'ydbl_gr', '8', false);
-    html += grp('基本医疗保险');
-    html += inp('医疗基数', 'ylj', r.sb||'', true);
+      html += inp('医疗基数', 'ylj', r.sb||'', true);
     html += inp('单位比例(%)', 'ylbl_dw', '6', false);
     html += inp('个人比例(%)', 'ylbl_gr', '2', false);
-    html += grp('住房公积金');
-    html += inp('公积金基数', 'gjjj', r.gjjj||'', true);
+      html += inp('公积金基数', 'gjjj', r.gjjj||'', true);
     html += sel('个人比例', 'gjjbl_gr', r.gjjbl||'12%', ['5%','8%','10%','12%'], true);
   }
   document.getElementById('modalFields').innerHTML = html;
@@ -1450,7 +1513,7 @@ function recalcCost(){
 }
 
 function fillOps() {
-  // 变动名单台账（card=0）：row-ops-confirm → 编辑 + 删除
+  // 变动名单台账（card=0）：row-ops-confirm → 编辑
   document.querySelectorAll('.row-ops-confirm').forEach(function(el) {
     if (el.children.length) return;
     var emp = el.dataset.emp;
@@ -1460,12 +1523,6 @@ function fillOps() {
     editBtn.textContent = '编辑';
     editBtn.onclick = function(e) { e.stopPropagation(); editRow('confirm', 'ch_' + emp); };
     el.appendChild(editBtn);
-    var delBtn = document.createElement('button');
-    delBtn.className = 'abtn';
-    delBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;color:var(--red);border-color:var(--gray-200);';
-    delBtn.textContent = '删除';
-    delBtn.onclick = (function(e){ return function(ev){ ev.stopPropagation(); deleteSingle(e); }; })(emp);
-    el.appendChild(delBtn);
   });
 
   // 申报台账（card=1）：row-ops → 编辑 + 上传附件 + 删除 + 已人工处理（仅申报失败tab）
@@ -1477,7 +1534,7 @@ function fillOps() {
     editBtn.className = 'abtn';
     editBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;margin-right:4px';
     editBtn.textContent = '编辑';
-    editBtn.onclick = function(e) { e.stopPropagation(); editRow('change', 'ch_' + emp); };
+    editBtn.onclick = function(e) { e.stopPropagation(); editRow('confirm', 'ch_' + emp); };
     el.appendChild(editBtn);
     var label = document.createElement('label');
     label.className = 'abtn';
@@ -1499,13 +1556,11 @@ function fillOps() {
         ev.stopPropagation();
         var r = _rowCache['ch_' + e];
         if (!r) return;
-        // 将所有险种 status 置为申报成功
         if (r.rpa_items && r.rpa_items.length) {
           r.rpa_items = r.rpa_items.map(function(item){ return {n: item.n, s: '申报成功'}; });
         }
         r.isErr = false;
         r.rpa_remark = '';
-        // 写入人工处理时间（当前时间）
         var now = new Date();
         var pad = function(n){ return String(n).padStart(2,'0'); };
         r.manual_time = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
@@ -1513,12 +1568,6 @@ function fillOps() {
       }; })(emp);
       el.appendChild(manualBtn);
     }
-    var delBtn = document.createElement('button');
-    delBtn.className = 'abtn';
-    delBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;color:var(--red);border-color:var(--gray-200);';
-    delBtn.textContent = '删除';
-    delBtn.onclick = (function(e){ return function(ev){ ev.stopPropagation(); deleteSingle(e); }; })(emp);
-    el.appendChild(delBtn);
   });
 
   // 缴费台账费用明细：row-ops-cost → 编辑（仅缴费异常）
@@ -1549,35 +1598,45 @@ function openNewRow(){
   };
   const grp = (t) => `<div class="mfield-group-title">${t}</div>`;
   let html = '';
-  html += grp('变动信息');
   html += sel('变动类型','change_type',['增员','减员','补缴','调基'],true);
   html += sel('数据来源','source',['常规维护','异地申请','紧急工单'],true);
-  html += grp('员工基本信息');
   html += inp('员工号','emp',true); html += inp('姓名','name',true);
   html += sel('性别','性别',['男','女'],true);
   html += inp('证件号','证件号',true);
   html += sel('证件类型','证件类型',['居民身份证','护照','港澳台通行证','外国人永居证'],true);
-  html += inp('出生日期(YYYY-MM-DD)','出生日期',false);
+  html += inp('出生日期','出生日期',false);
   html += inp('手机号','手机号',false);
   html += sel('人员类别','人员类别',['工人','个人','干部','农民'],true);
   html += sel('人员状态','人员状态',['在职','退休','其它','1-4级工残'],true);
   html += sel('用工形式','用工形式',['干部','合同','城镇合同制职工','农村合同制工人','法人代表'],true);
   html += inp('职等','职等',true);
-  html += grp('参保信息');
+  html += sel('就业前身份','就业前身份',['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他'],false);
   html += inp('社保主体','社保主体',true); html += inp('费用主体','费用主体',true);
-  html += inp('成本中心','成本中心',false);
+  html += inp('责任中心名称','责任中心名称',false); html += inp('责任中心编码','责任中心编码',false);
   html += sel('参保形式','参保形式',['正常参保','异地参保','第三方'],true);
   html += inp('参保地','参保地',true);
-  html += inp('参保险种（多个用顿号分隔）','参保险种',true);
+  html += inp('参保险种','参保险种',true);
   html += inp('社保基数','社保基数',true);
   html += inp('公积金基数','公积金基数',false);
   html += inp('公积金个人比例','公积金比例',false);
-  grp('变动时间');
-  html += inp('社保增员生效月(YYYY-MM)','社保增员生效月',false);
-  html += inp('公积金增员生效月(YYYY-MM)','公积金增员生效月',false);
-  html += inp('社保减员生效月(YYYY-MM)','社保减员生效月',false);
-  html += inp('公积金减员生效月(YYYY-MM)','公积金减员生效月',false);
-  html += sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同'],false);
+  html += sel('银行账户类别','银行账户类别',['对私','对私数字钱包'],false);
+  html += sel('启封原因','启封原因',['正常上班启封','继续缴存','其他'],false);
+  html += sel('开户原因','开户原因',['新增','调入','其他'],false);
+  html += sel('医疗缴费档次','医疗缴费档次',['一档','二档'],false);
+  html += inp('社保增员生效月','社保增员生效月',false);
+  html += inp('公积金增员生效月','公积金增员生效月',false);
+  html += inp('社保减员生效月','社保减员生效月',false);
+  html += inp('公积金减员生效月','公积金减员生效月',false);
+  html += sel('减员原因','减员原因',['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同'],false);
+  html += inp('社保补缴开始时间','社保补缴开始时间',false);
+  html += inp('社保补缴结束时间','社保补缴结束时间',false);
+  html += inp('公积金补缴开始时间','公积金补缴开始时间',false);
+  html += inp('公积金补缴结束时间','公积金补缴结束时间',false);
+  html += sel('补缴原因','补缴原因',['','欠缴','少缴','其他'],false);
+  html += sel('补缴类型','补缴类型',['','欠缴补缴','少缴补缴'],false);
+  html += inp('调基时间','调基时间',false);
+  html += sel('调整原因','调整原因',['','正常调整','错缴调整'],false);
+  html += sel('调整类型','调整类型',['','年度调整','非年度调整'],false);
   document.querySelector('#newModal .modal-hd h3').textContent = '新增变动记录';
   fields.innerHTML = html;
   modal.classList.add('show');
@@ -1603,6 +1662,12 @@ function saveNewRow(){
   render();
 }
 
+// ── 申报台账新增（紧急工单入口） ──
+function openNewConfirmRow(){
+  openNewRow(); // 复用变动名单台账新增表单，写入申报台账
+  document.querySelector('#newModal .modal-hd h3').textContent = '新增申报记录（紧急工单）';
+}
+
 let _batchEditTargets = [];
 
 // ── 批改：打开弹窗 ──
@@ -1622,33 +1687,41 @@ function openBatchEdit(){
   // 构建可批改字段表单
   const fields = document.getElementById('batchEditFields');
   const inp = (label, key, placeholder) =>
-    `<div class="mfield"><label>${label}</label><input class="minput" data-key="${key}" placeholder="${placeholder||'留空则不修改'}" /></div>`;
+    `<div class="mfield"><label>${label}</label><input class="minput" data-key="${key}" placeholder="${placeholder||''}" /></div>`;
   const sel = (label, key, opts, placeholder) => {
     const o = opts.map(v=>`<option value="${v}">${v}</option>`).join('');
-    return `<div class="mfield"><label>${label}</label><select class="mselect" data-key="${key}"><option value="">${placeholder||'留空则不修改'}</option>${o}</select></div>`;
+    return `<div class="mfield"><label>${label}</label><select class="mselect" data-key="${key}"><option value="">${placeholder||''}</option>${o}</select></div>`;
   };
-  const grp = t => `<div class="mfield-group-title">${t}</div>`;
 
   fields.innerHTML = [
-    grp('变动信息'),
-    sel('变动类型','change_type',['增员','减员','补缴','调基']),
-    sel('数据来源','source',['常规维护','异地申请','紧急工单']),
-    grp('参保信息'),
-    inp('社保主体','社保主体','留空则不修改'),
-    inp('参保地','参保地','留空则不修改'),
-    sel('参保形式','参保形式',['正常参保','异地参保','第三方']),
-    inp('参保险种（多个用顿号分隔）','参保险种','留空则不修改'),
-    inp('社保基数','社保基数','留空则不修改'),
-    inp('公积金基数','公积金基数','留空则不修改'),
-    inp('公积金个人比例（如12%）','公积金比例','留空则不修改'),
-    grp('员工信息'),
+    sel('就业前身份','就业前身份',['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他']),
     sel('人员类别','人员类别',['工人','个人','干部','农民']),
     sel('人员状态','人员状态',['在职','退休','其它','1-4级工残']),
     sel('用工形式','用工形式',['干部','合同','城镇合同制职工','农村合同制工人','法人代表']),
-    grp('变动时间'),
-    inp('社保增员生效月（YYYY-MM）','社保增员生效月','留空则不修改'),
-    inp('社保减员生效月（YYYY-MM）','社保减员生效月','留空则不修改'),
-    sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','连纪辞退','组织架构调整','终止劳动合同']),
+    sel('银行账户类别','银行账户类别',['对私','对私数字钱包']),
+    inp('社保主体','社保主体',''),
+    inp('公积金主体','公积金主体',''),
+    inp('费用主体','费用主体',''),
+    inp('责任中心名称','责任中心名称',''),
+    inp('责任中心编码','责任中心编码',''),
+    inp('特定工伤险主体','特定工伤险主体',''),
+    sel('参保状态','参保状态',['未缴纳','已缴纳','已停保','不缴纳']),
+    sel('参保形式','参保形式',['正常参保','异地参保','第三方']),
+    inp('参保险种','参保险种',''),
+    inp('公积金个人比例','公积金比例',''),
+    inp('社保基数','社保基数',''),
+    inp('公积金基数','公积金基数',''),
+    sel('缴费档次','缴费档次',['一档','二档']),
+    sel('启封原因','启封原因',['正常上班启封','继续缴存','其他']),
+    sel('开户原因','开户原因',['新增','调入','其他']),
+    sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同']),
+    sel('特定人员类型','特定人员类型',['超过法定退休年龄人员（未享受养老金或退休金）','已享受养老金或退休金人员','已享受伤残津贴','病残津贴人员','家政服务机构家政从业人员','新业态从业人员','实习学生（含勤工俭学）','见习人员','村(社区)两委人员','志愿者','快递从业人员','运输车辆的司机和乘务人员']),
+    sel('调整原因','调整原因',['正常调整','错缴调整']),
+    sel('调整类型','调整类型',['年度调整','非年度调整']),
+    inp('社保补缴开始时间','社保补缴开始时间',''),
+    inp('社保补缴结束时间','社保补缴结束时间',''),
+    inp('公积金补缴开始时间','公积金补缴开始时间',''),
+    inp('公积金补缴结束时间','公积金补缴结束时间',''),
   ].join('');
 
   // 重置预览区
