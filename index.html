@@ -469,7 +469,14 @@ function insCell(val,maxW){
 }
 
 const INS_SETS=['基本养老保险、基本医疗保险、失业保险、工伤保险','基本养老保险、基本医疗保险、失业保险、工伤保险、住房公积金','基本养老保险、基本医疗保险、失业保险、工伤保险、生育保险','基本养老保险、基本医疗保险、失业保险、工伤保险、住房公积金、补充住房公积金','基本养老保险、基本医疗保险、失业保险、工伤保险、长期护理险','基本养老保险、基本医疗保险、工伤保险、住房公积金、补充医疗保险','特定人员单项工伤险','基本养老保险、基本医疗保险、失业保险、工伤保险、生育保险、住房公积金'];
-const INS_RPA=[['基本养老保险','基本医疗保险','失业保险','工伤保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','住房公积金'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','住房公积金','补充住房公积金'],['基本养老保险','基本医疗保险','失业保险','工伤保险','长期护理险'],['基本养老保险','基本医疗保险','工伤保险','住房公积金','补充医疗保险'],['特定人员单项工伤险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险','住房公积金']];
+// 社保险种（不含公积金）→ RPA社保申报结果
+const INS_RPA_SB=[['基本养老保险','基本医疗保险','失业保险','工伤保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','长期护理险'],['基本养老保险','基本医疗保险','工伤保险','补充医疗保险'],['特定人员单项工伤险'],['基本养老保险','基本医疗保险','失业保险','工伤保险','生育保险']];
+// 是否有公积金 → RPA公积金申报结果（单个状态值）
+const INS_HAS_GJJ=[false,true,false,true,false,true,false,true];
+// 保持旧引用兼容
+const INS_RPA=INS_RPA_SB;
+function aF(it){return it&&it.some(i=>i.s==='申报失败');}
+function isErrRow(r){return aF(r.rpa_sb_items)||r.rpa_gjj_result==='申报失败';}
 const NS=['谭艳韵','梁文博','林爱护','路明非','奥特曼','李欢欢','张三丰','施婷','法克','设计师','李思远','王小明','陈晓红','周大强','刘丽华','赵明华','孙磊','刘芳','陈静','杨帆','黄志远','吴佳宁','徐伟','朱晓燕','郑凯','马丽萍','刘建国','周雪梅','蒋俊杰','方宇','潘晨','吕浩然','严文博','丁雅琴','唐晓龙','冯晓丽','沈博文','卢晓燕','贺子豪','韩雨欣','曹晓明','侯月华','龙晓涛','白雪梅','廖博文','邓思远','石晓龙','易雅琴','熊文博','傅晓燕','苏志远','阮子豪','薛月华','贾晓明','程博文','许思远','殷晓龙','魏雅琴','柳文博','钱晓燕','余志远','洪子豪','叶月华','胡晓明','狄博文','庞思远','秦晓龙','伍雅琴','毕文博','聂晓燕','华志远','季子豪','葛月华','邹晓明','安博文','史思远','谢晓龙','钟雅琴','姚文博','童晓燕','申博文','桂月华'];
 const DP=['01130店广州礼岗','智慧人力组','行政技术组','01100店漯河前周','后台质量组','行政产品组','财务管理组','厨房组','体验设计组','数据平台组','01200店佛山南海','运营支持组','供应链组','品牌营销组','IT基础设施组','薪酬福利组','法务合规组'];
 const SJ=['大参林医药集团','大参林（广州）','大参林（漯河）','大参林（佛山）'];
@@ -561,7 +568,7 @@ function genData(month,total){
       rpa_time:confirmed==='是'?`${month}-${String((i%9)+1).padStart(2,'0')} ${String(8+(i%10)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`:'',
       附件:confirmed==='是'&&!isE?[{name:`申报附件-${i+1}.pdf`,type:'社保申报附件'}]:[],
       名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:confirmed,
-      ticket_month:month,rpa_items:rpa,rpa_remark:isE?['证件号不匹配','减员时间超截止','公积金账户异常'][i%3]:'',isErr:isE});
+      ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?(isE&&i%3===2?'申报失败':'申报成功'):'',rpa_sb_remark:isE&&i%3!==2?['证件号不匹配','减员时间超截止'][i%2]:'',rpa_gjj_remark:isE&&i%3===2?'公积金账户异常':'',isErr:isE});
   }
 
   // ── 常规维护 来源2：调动→同一员工产生减员(原主体)+增员(新主体) ──
@@ -584,7 +591,7 @@ function genData(month,total){
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',
       名单更新时间:`${month}-05`,名单是否确认:'是',
-      ticket_month:month,rpa_items:rpaOk,rpa_remark:'',isErr:false};
+      ticket_month:month,rpa_sb_items:rpaOk,rpa_gjj_result:'申报成功',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     // 减员（原主体）
     rows.push({...base,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-ADJ-D${i}`,责任中心名称:`CC-ADJ-D${i}`,责任中心编码:`CADJD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'正常参保',参保地:SC[sjOld],原参保地:'',申请参保地:'',
@@ -624,7 +631,7 @@ function genData(month,total){
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',
       名单更新时间:`${month}-08`,名单是否确认:'否',
-      ticket_month:month,rpa_items:[],rpa_remark:'',isErr:false};
+      ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     rows.push({...base2,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-CTR-D${i}`,责任中心名称:`CC-CTR-D${i}`,责任中心编码:`CCTRD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'正常参保',参保地:SC[sjOld],原参保地:'',申请参保地:'',
       公积金单位比例:'10%',公积金单位费用:'800',公积金个人费用:'800',公积金合计:'1600',
@@ -672,7 +679,7 @@ function genData(month,total){
       申报类型:'减员',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:confirmed==='是'?`${month}-${String((i%9)+1).padStart(2,'0')} ${String(9+(i%8)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`:'',
       附件:[],名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:confirmed,
-      ticket_month:month,rpa_items:rpa,rpa_remark:'',isErr:false});
+      ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?'申报成功':'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false});
   }
 
   // ── 常规维护 来源5：调基时间触发→调基 ──
@@ -713,7 +720,7 @@ function genData(month,total){
       申报类型:'调基',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:`${month}-03 14:${String(i%60).padStart(2,'0')}:00`,附件:[],
       名单更新时间:`${month}-03`,名单是否确认:'是',
-      ticket_month:month,rpa_items:rpa,rpa_remark:'',isErr:false});
+      ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?'申报成功':'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false});
   }
 
   // ── 异地申请：同一员工减员(原主体)+增员(新参保地)，名单是否确认=否 ──
@@ -735,7 +742,7 @@ function genData(month,total){
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',职称:'',户口所在地:'广东广州',户口性质:'城市',
       名单更新时间:`${month}-12`,名单是否确认:'否',
-      ticket_month:month,rpa_items:[],rpa_remark:'',isErr:false};
+      ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     // 减员（原主体）
     rows.push({...base3,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-YD-D${i}`,责任中心名称:`CC-YD-D${i}`,责任中心编码:`CYDD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'异地参保',参保地:SC[sjOld],原参保地:SC[sjOld],申请参保地:cityNew,
@@ -800,7 +807,7 @@ function genData(month,total){
       就业形式:ct==='增员'?'雇佣就业':'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:`${month}-${String((i%9)+1).padStart(2,'0')} ${String(14+(i%8)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`,
       附件:[],名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:'是',
-      ticket_month:month,rpa_items:rpa,rpa_remark:'',isErr:false});
+      ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?'申报成功':'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false});
   }
 
   // ── 在保人员（变动名单台账专用，申报台账不显示） ──
@@ -836,7 +843,7 @@ function genData(month,total){
       职称:'',户口所在地:'',户口性质:'城市',
       申报类型:'',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:'',附件:[],名单更新时间:`${month}-01`,名单是否确认:'是',
-      ticket_month:month,rpa_items:[],rpa_remark:'',isErr:false
+      ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false
     });
   }
 
@@ -1148,18 +1155,18 @@ function render(){
   const cBak=changeData.filter(r=>r.change_type==='补缴').length;
   const cAdj=changeData.filter(r=>r.change_type==='调基').length;
   const cConf=changeData.filter(r=>r.名单是否确认==='是').length;
-  const cFail=changeData.filter(r=>r.isErr).length;
+  const cFail=changeData.filter(r=>isErrRow(r)).length;
   document.getElementById('cn0').textContent=cTotal+'人';
   document.getElementById('cs0').textContent=`在保${insuredN}人 · 增员${cInc}人 · 减员${cDec}人 · 补缴${cBak}人 · 调基${cAdj}人`;
 
   // card 1：社保公积金申报台账 — 应增/实增/增员异常；减员/实减/减员异常；补缴/调基
   const changeOnly=changeData.filter(r=>r.change_type!=='在保人员');
   const cIncConf=changeOnly.filter(r=>r.change_type==='增员').length;
-  const cIncSucc=changeOnly.filter(r=>r.change_type==='增员'&&r.名单是否确认==='是'&&r.rpa_items&&r.rpa_items.every(i=>i.s==='申报成功')).length;
-  const cIncErr=changeOnly.filter(r=>r.change_type==='增员'&&r.isErr).length;
+  const cIncSucc=changeOnly.filter(r=>r.change_type==='增员'&&r.名单是否确认==='是'&&r.rpa_sb_items&&r.rpa_sb_items.every(i=>i.s==='申报成功')&&r.rpa_gjj_result!=='申报失败').length;
+  const cIncErr=changeOnly.filter(r=>r.change_type==='增员'&&isErrRow(r)).length;
   const cDecConf=changeOnly.filter(r=>r.change_type==='减员').length;
-  const cDecSucc=changeOnly.filter(r=>r.change_type==='减员'&&r.名单是否确认==='是'&&r.rpa_items&&r.rpa_items.every(i=>i.s==='申报成功')).length;
-  const cDecErr=changeOnly.filter(r=>r.change_type==='减员'&&r.isErr).length;
+  const cDecSucc=changeOnly.filter(r=>r.change_type==='减员'&&r.名单是否确认==='是'&&r.rpa_sb_items&&r.rpa_sb_items.every(i=>i.s==='申报成功')&&r.rpa_gjj_result!=='申报失败').length;
+  const cDecErr=changeOnly.filter(r=>r.change_type==='减员'&&isErrRow(r)).length;
   document.getElementById('cn1').textContent=changeOnly.length+'人';
   document.getElementById('cs1').textContent=`应增${cInc}人·实增${cIncSucc}人·增员异常${cIncErr}人\n应减${cDec}人·实减${cDecSucc}人·减员异常${cDecErr}人 · 补缴${cBak}人·调基${cAdj}人`;
 
@@ -1239,7 +1246,7 @@ function pgHtml(tot,PZ){
 // 基础列（两个台账共用）
 const BASE_COLS=['','序号','生效月份','数据来源','变动类型','是否为特殊人员','一级部门','二级部门','三级部门','部门名称','员工号','姓名','证件号','员工类别','管培生身份生效日期','是否管培生','管培生类型','职等','就业前身份','人员类别','人员状态','用工类型','社保主体','公积金主体','费用主体','责任中心名称','责任中心编码','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保单位基数','原社保单位基数','现社保单位基数','社保个人基数','原社保个人基数','现社保个人基数','公积金基数','原公积金基数','现公积金基数','公积金单位比例','公积金单位费用','公积金个人费用','公积金合计','缴费档次','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','启封原因','开户原因','减员原因','调整原因','调整类型','调基时间','社保补缴开始时间','社保补缴结束时间','社保补缴月份','公积金补缴开始时间','公积金补缴结束时间','公积金补缴月份','补缴原因','补缴类型','特定人员类型','职称','性别','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','通讯地址','银行','账号','银行账户类别','名单更新时间','名单是否确认'];
 // 申报台账额外列（RPA执行字段）
-const RPA_COLS=['参加工作日期','是否参加医疗补助','就业形式','所属学校','申报类型','RPA申报时间','是否人工处理','人工处理时间','人工处理备注','是否更新基础数据','更新基础数据时间','RPA申报结果','RPA申报结果备注','附件'];
+const RPA_COLS=['参加工作日期','是否参加医疗补助','就业形式','所属学校','申报类型','RPA申报时间','是否人工处理','人工处理时间','人工处理备注','是否更新基础数据','更新基础数据时间','RPA社保申报结果','RPA社保申报结果备注','RPA公积金申报结果','RPA公积金申报结果备注','附件'];
 // 两个台账的完整列定义
 const CHANGE_COLS=[...BASE_COLS,'操作'];
 const CC=[...BASE_COLS,...RPA_COLS,'操作'];
@@ -1350,7 +1357,7 @@ function rChange(changeData, mode){
       if(vt==='补缴'&&r.change_type!=='补缴')return false;
     }
     if(mode===1){
-      if(vt==='申报失败'&&!r.isErr)return false;
+      if(vt==='申报失败'&&!isErrRow(r))return false;
     }
     return true;
   });
@@ -1391,7 +1398,7 @@ function rChange(changeData, mode){
   } else {
     // 申报台账：分页Tab：全部/申报失败
     // 申报台账数据全部来自「确认名单结束时间」回写或紧急工单，名单是否确认全部=是
-    const failN=changeData.filter(r=>r.isErr).length;
+    const failN=changeData.filter(r=>isErrRow(r)).length;
     const tabsWC=[`全部(${changeData.length})`,`申报失败(${failN})`];
     const th=tabsWC.map(x=>{
       const xl=x.replace(/\(\d+\)/,'').trim();
@@ -1431,15 +1438,17 @@ function rChange(changeData, mode){
         +'<td style="color:var(--gray-500);font-size:12px">'+tx(r.人工处理备注||'')+'</td>'
         +'<td>'+tag(isUpdateBase)+'</td>'
         +'<td style="color:var(--gray-400);font-size:12px">'+(r.update_base_time||'')+'</td>'
-        +'<td>'+rh(r.rpa_items||[])+'</td>'
-        +'<td style="color:var(--red);font-size:12px">'+tx(r.rpa_remark||'')+'</td>'
+        +'<td>'+rh(r.rpa_sb_items||[])+'</td>'
+        +'<td style="color:var(--red);font-size:12px">'+tx(r.rpa_sb_remark||'')+'</td>'
+        +'<td>'+(r.rpa_gjj_result?'<span class="tag '+(r.rpa_gjj_result==="申报成功"?"t-green":r.rpa_gjj_result==="申报失败"?"t-red":"t-orange")+'">'+r.rpa_gjj_result+'</span>':'-')+'</td>'
+        +'<td style="color:var(--red);font-size:12px">'+tx(r.rpa_gjj_remark||'')+'</td>'
         +'<td>'+attachHtml+'</td>';
     }
     // 操作列：避免引号嵌套问题，直接生成带 data 属性的 span，由 fillOps 注入按钮
     const opsSpan = mode===0
       ? '<span class="row-ops-confirm" data-emp="'+r.emp+'"></span>'
-      : '<span class="row-ops" data-emp="'+r.emp+'" data-err="'+(r.isErr?1:0)+'" data-vt="'+vt+'"></span>';
-    return '<tr class="'+(r.isErr&&mode===1?'er':'')+'">'+base+rpaExtra+'<td style="white-space:nowrap">'+opsSpan+'</td></tr>';
+      : '<span class="row-ops" data-emp="'+r.emp+'" data-err="'+(isErrRow(r)?1:0)+'" data-vt="'+vt+'"></span>';
+    return '<tr class="'+(isErrRow(r)&&mode===1?'er':'')+'">'+base+rpaExtra+'<td style="white-space:nowrap">'+opsSpan+'</td></tr>';
   }).join('') : '<tr><td colspan="'+cols.length+'" class="emp-empty">暂无数据</td></tr>';
 
   document.getElementById('la').innerHTML=`${headerHtml}
@@ -1814,9 +1823,12 @@ function batchRpaApply(){
     const r=_rowCache['ch_'+span.dataset.emp];
     if(!r)return;
     r.rpa_time=ts;
-    if(!r.rpa_items||!r.rpa_items.length){
-      const ri=INS_RPA[(r.emp.charCodeAt(3))%INS_RPA.length];
-      r.rpa_items=ri.map(n=>({n,s:'申报成功'}));
+    if(!r.rpa_sb_items||!r.rpa_sb_items.length){
+      const ri=INS_RPA_SB[(r.emp.charCodeAt(3))%INS_RPA_SB.length];
+      const hasGjj=INS_HAS_GJJ[(r.emp.charCodeAt(3))%INS_HAS_GJJ.length];
+      r.rpa_sb_items=ri.map(n=>({n,s:'申报成功'}));
+      r.rpa_gjj_result=hasGjj?'申报成功':'';
+      r.rpa_sb_remark='';r.rpa_gjj_remark='';
     }
     cnt++;
   });
@@ -1838,8 +1850,9 @@ function batchManualProcess(){
     if(!span)return;
     const r=_rowCache['ch_'+span.dataset.emp];
     if(!r)return;
-    if(r.rpa_items&&r.rpa_items.length) r.rpa_items=r.rpa_items.map(i=>({n:i.n,s:'申报成功'}));
-    r.isErr=false;r.rpa_remark='';r.manual_time=ts;r.人工处理备注=remark||'线下已处理完成';cnt++;
+    if(r.rpa_sb_items&&r.rpa_sb_items.length) r.rpa_sb_items=r.rpa_sb_items.map(i=>({n:i.n,s:'申报成功'}));
+    if(r.rpa_gjj_result) r.rpa_gjj_result='申报成功';
+    r.isErr=false;r.rpa_sb_remark='';r.rpa_gjj_remark='';r.manual_time=ts;r.人工处理备注=remark||'线下已处理完成';cnt++;
   });
   render();
   showToast(`已标记 ${cnt} 条为人工处理完成`,'success');
