@@ -222,8 +222,8 @@ tr.er:hover td{background:#FEE2E2;}
 
 <!-- Search Panel -->
 <div class="search-panel">
-  <div class="search-row">
-    <div class="sf"><label>所属月份</label>
+  <div class="search-row" id="filterRow1">
+    <div class="sf"><label id="monthLabel">生效月份</label>
       <select id="smonth" onchange="render()" style="min-width:120px;">
         <option value="2026-03" selected>2026年03月</option>
         <option value="2026-02">2026年02月</option>
@@ -233,15 +233,24 @@ tr.er:hover td{background:#FEE2E2;}
         <option value="2025-10">2025年10月</option>
       </select>
     </div>
-    <div class="sf"><label>员工姓名</label><input id="sn" oninput="render()" placeholder="输入员工姓名" style="min-width:110px;"/></div>
-    <div class="sf"><label>员工号</label><input id="se" oninput="render()" placeholder="输入员工号" style="min-width:100px;"/></div>
-    <div class="sf"><label>单位名称</label>
-      <select id="sunit" onchange="render()" style="min-width:130px;">
+    <div class="sf r1e"><label>姓名</label><input id="sn" oninput="render()" placeholder="模糊搜索" style="min-width:100px;"/></div>
+    <div class="sf r1e"><label>员工号</label><input id="se" oninput="render()" placeholder="模糊搜索" style="min-width:100px;"/></div>
+    <div class="sf r1e"><label>证件号</label><input id="sidcard" oninput="render()" placeholder="模糊搜索" style="min-width:110px;"/></div>
+    <div class="sf r1e"><label>数据来源</label>
+      <select id="ssource" onchange="render()" style="min-width:110px;">
         <option value="">全部</option>
-        <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+        <option>系统生成</option><option>特殊工单</option><option>在保人员</option>
       </select>
     </div>
-    <div class="sf"><label>变动类型</label>
+    <div class="sf r1e"><label>变动原因</label>
+      <select id="sreason" onchange="render()" style="min-width:130px;">
+        <option value="">全部</option>
+        <option>入职</option><option>离职</option><option>实习生转合同工</option>
+        <option>合同工转退休返聘</option><option>主体变更</option>
+        <option>年度调基</option><option>异地申请</option>
+      </select>
+    </div>
+    <div class="sf r1e"><label>变动类型</label>
       <div id="sct-wrap" style="position:relative;">
         <button type="button" id="sct-btn" onclick="toggleSct()" style="height:34px;min-width:110px;padding:0 26px 0 10px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;color:var(--gray-500);background:#fff;cursor:pointer;text-align:left;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
           全部
@@ -250,7 +259,6 @@ tr.er:hover td{background:#FEE2E2;}
         <div id="sct-dropdown" style="display:none;position:absolute;top:38px;left:0;z-index:300;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);padding:4px;min-width:130px;">
           <label class="sct-item"><input type="checkbox" id="sct-all" onchange="sctToggleAll(this)"> 全部</label>
           <div style="height:1px;background:var(--gray-100);margin:2px 4px;"></div>
-          <label class="sct-item"><input type="checkbox" class="sct-opt" value="在保人员" onchange="sctChange()"> 在保人员</label>
           <label class="sct-item"><input type="checkbox" class="sct-opt" value="增员" onchange="sctChange()"> 增员</label>
           <label class="sct-item"><input type="checkbox" class="sct-opt" value="减员" onchange="sctChange()"> 减员</label>
           <label class="sct-item"><input type="checkbox" class="sct-opt" value="补缴" onchange="sctChange()"> 补缴</label>
@@ -258,26 +266,236 @@ tr.er:hover td{background:#FEE2E2;}
         </div>
       </div>
     </div>
-    <div class="sf"><label>社保主体</label>
-      <select id="ssj" onchange="render()" style="min-width:130px;">
-        <option value="">全部</option>
-        <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
-      </select>
-    </div>
-    <div class="sf"><label>申报系统</label>
-      <select id="ss" onchange="render()" style="min-width:110px;">
-        <option value="">全部</option>
-        <option>社保系统</option><option>公积金系统</option>
+    <div class="sf r1e"><label>是否为特殊人员</label>
+      <select id="sspecial" onchange="render()" style="min-width:110px;">
+        <option value="">全部</option><option>是</option><option>否</option>
       </select>
     </div>
     <div class="search-actions">
-      <button class="btn btn-primary btn-icon" onclick="render()">
+      <button class="btn btn-primary btn-icon r1e" onclick="render()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>搜索
       </button>
-      <button class="btn btn-secondary" onclick="clearAll()">重置</button>
-      <button class="btn btn-ghost" style="padding:0 10px;font-weight:600;">⋯</button>
+      <button class="btn btn-secondary r1e" onclick="clearAll()">重置</button>
+      <button class="btn btn-ghost r1e" style="padding:0 10px;font-weight:600;" onclick="toggleMoreFilters()">展开 ▾</button>
     </div>
   </div>
+  <!-- 展开更多筛选条件 -->
+  <div id="filterRow2" style="display:none;margin-top:10px;border-top:1px solid var(--gray-100);padding-top:10px;">
+    <div class="search-row" style="flex-wrap:wrap;gap:10px 14px;align-items:flex-end;">
+
+      <!-- 部门 -->
+      <div class="sf"><label>一级部门</label>
+        <select id="sd1" onchange="render()" style="min-width:100px;">
+          <option value="">全部</option><option>大参林</option>
+        </select>
+      </div>
+      <div class="sf"><label>部门名称</label>
+        <select id="sdept" onchange="render()" style="min-width:130px;">
+          <option value="">全部</option>
+          <option>01130店广州礼岗</option><option>01100店漯河前周</option>
+          <option>01200店佛山南海</option><option>智慧人力组</option>
+          <option>薪酬福利组</option><option>行政产品组</option>
+        </select>
+      </div>
+
+      <!-- 职等 -->
+      <div class="sf"><label>职等</label>
+        <select id="sjob" onchange="render()" style="min-width:90px;">
+          <option value="">全部</option>
+          <option>L2</option><option>L3</option><option>L4</option><option>L5</option><option>L6</option>
+        </select>
+      </div>
+
+      <!-- 员工类别 -->
+      <div class="sf"><label>员工类别</label>
+        <select id="sempcat" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option>
+          <option>合同工</option><option>实习人员</option><option>见习人员</option><option>退休返聘</option><option>兼职人员</option>
+        </select>
+      </div>
+
+      <!-- 参保险种（多选）-->
+      <div class="sf"><label>参保险种</label>
+        <div id="sins-wrap" style="position:relative;">
+          <button type="button" id="sins-btn" onclick="toggleIns()" style="height:34px;min-width:130px;padding:0 26px 0 10px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;color:var(--gray-500);background:#fff;cursor:pointer;text-align:left;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            全部<svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none;" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="var(--gray-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div id="sins-dropdown" style="display:none;position:absolute;top:38px;left:0;z-index:300;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-sm);box-shadow:var(--shadow-md);padding:4px;min-width:190px;">
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="基本养老保险" onchange="insChange()"> 基本养老保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="基本医疗保险" onchange="insChange()"> 基本医疗保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="失业保险" onchange="insChange()"> 失业保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="工伤保险" onchange="insChange()"> 工伤保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="特定人员单项工伤险" onchange="insChange()"> 特定人员单项工伤险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="生育保险" onchange="insChange()"> 生育保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="住房公积金" onchange="insChange()"> 住房公积金</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="大病" onchange="insChange()"> 大病</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="重疾" onchange="insChange()"> 重疾</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="补充医疗保险" onchange="insChange()"> 补充医疗保险</label>
+            <label class="sct-item"><input type="checkbox" class="sins-opt" value="长期护理险" onchange="insChange()"> 长期护理险</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 参保地 -->
+      <div class="sf"><label>参保地</label>
+        <select id="scity" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option>
+          <option>广州市</option><option>漯河市</option><option>佛山市</option>
+        </select>
+      </div>
+
+      <!-- 社保主体、公积金主体、特定工伤险主体 -->
+      <div class="sf"><label>社保主体</label>
+        <select id="ssj" onchange="render()" style="min-width:130px;">
+          <option value="">全部</option>
+          <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+        </select>
+      </div>
+      <div class="sf"><label>公积金主体</label>
+        <select id="sgjj" onchange="render()" style="min-width:130px;">
+          <option value="">全部</option>
+          <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+        </select>
+      </div>
+      <div class="sf"><label>特定工伤险主体</label>
+        <select id="stdsb" onchange="render()" style="min-width:130px;">
+          <option value="">全部</option>
+          <option>大参林医药集团</option><option>大参林（广州）</option><option>大参林（漯河）</option><option>大参林（佛山）</option>
+        </select>
+      </div>
+
+      <!-- 参保状态、参保形式 -->
+      <div class="sf"><label>参保状态</label>
+        <select id="sbstate" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option>
+          <option>参保</option><option>不参保</option><option>未缴纳</option><option>已停保</option>
+        </select>
+      </div>
+      <div class="sf"><label>参保形式</label>
+        <select id="sbform" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option>
+          <option>正常参保</option><option>异地参保</option><option>第三方</option>
+        </select>
+      </div>
+
+      <!-- 缴费档次 -->
+      <div class="sf"><label>缴费档次</label>
+        <select id="slevel" onchange="render()" style="min-width:90px;">
+          <option value="">全部</option><option>一档</option><option>二档</option>
+        </select>
+      </div>
+
+      <!-- 是否当月处理、名单是否确认 -->
+      <div class="sf"><label>是否当月处理</label>
+        <select id="sprocess" onchange="render()" style="min-width:120px;">
+          <option value="">全部</option>
+          <option>处理</option><option>暂不处理</option><option>永不处理</option>
+        </select>
+      </div>
+      <div class="sf"><label>名单是否确认</label>
+        <select id="sconfirm" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option><option>是</option><option>否</option>
+        </select>
+      </div>
+
+      <!-- 各月份筛选 — type="month" 年月选择器 -->
+      <div class="sf"><label>社保增员生效月</label><input type="month" id="ssb_inc" oninput="render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>公积金增员生效月</label><input type="month" id="sgjj_inc" oninput="render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>社保减员生效月</label><input type="month" id="ssb_dec" oninput="render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>公积金减员生效月</label><input type="month" id="sgjj_dec" oninput="render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>处理月份</label><input type="month" id="sprocmonth" oninput="render()" style="min-width:130px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>社保调基时间</label><input type="month" id="ssb_adj" oninput="render()" style="min-width:130px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>公积金调整时间</label><input type="month" id="sgjj_adj" oninput="render()" style="min-width:130px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+
+      <!-- 补缴时间范围 — type="date" 年月日选择器，实时校验起止顺序 -->
+      <div class="sf"><label>社保补缴开始</label><input type="date" id="ssb_bkstart" oninput="validateBkTime()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>社保补缴结束</label><input type="date" id="ssb_bkend" oninput="validateBkTime();render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>公积金补缴开始</label><input type="date" id="sgjj_bkstart" oninput="validateBkTime()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>公积金补缴结束</label><input type="date" id="sgjj_bkend" oninput="validateBkTime();render()" style="min-width:140px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+
+      <!-- 补缴月份 -->
+      <div class="sf"><label>社保补缴月份</label>
+        <select id="ssbmonth" onchange="render()" style="min-width:90px;">
+          <option value="">全部</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+      <div class="sf"><label>公积金补缴月份</label>
+        <select id="sgjjmonth" onchange="render()" style="min-width:100px;">
+          <option value="">全部</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
+      </div>
+
+      <!-- 申报台账专用 -->
+      <div class="sf" id="sf-manual"><label>是否人工处理</label>
+        <select id="smanual" onchange="render()" style="min-width:100px;">
+          <option value="">全部</option><option>是</option><option>否</option>
+        </select>
+      </div>
+      <div class="sf" id="sf-updatebase"><label>是否更新基础数据</label>
+        <select id="supdatebase" onchange="render()" style="min-width:120px;">
+          <option value="">全部</option><option>是</option><option>否</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <!-- 缴费台账专属筛选区（card=2 时显示，其余隐藏） -->
+  <div id="filterRowPay" style="display:none;margin-top:10px;border-top:1px solid var(--gray-100);padding-top:10px;">
+    <div class="search-row" style="flex-wrap:wrap;gap:10px 14px;align-items:flex-end;">
+      <div class="sf"><label>参保地</label>
+        <select id="pay_city" onchange="render()" style="min-width:110px;">
+          <option value="">全部</option>
+          <option>广州市</option><option>漯河市</option><option>佛山市</option><option>武汉市</option><option>成都市</option>
+        </select>
+      </div>
+      <div class="sf"><label>单位名称</label>
+        <select id="sunit" onchange="render()" style="min-width:140px;">
+          <option value="">全部</option>
+          <option>大参林医药集团</option><option>大参林（广州）</option>
+          <option>大参林（漯河）</option><option>大参林（佛山）</option>
+          <option>大参林（武汉）</option><option>大参林（成都）</option>
+        </select>
+      </div>
+      <div class="sf"><label>单位社保号</label><input id="pay_sbno" oninput="render()" placeholder="模糊搜索" style="min-width:120px;"/></div>
+      <div class="sf"><label>单位社保号_医疗</label><input id="pay_sbno_yl" oninput="render()" placeholder="模糊搜索" style="min-width:130px;"/></div>
+      <div class="sf"><label>单位社保号_养老</label><input id="pay_sbno_yld" oninput="render()" placeholder="模糊搜索" style="min-width:130px;"/></div>
+      <div class="sf"><label>公积金账号</label><input id="pay_gjjno" oninput="render()" placeholder="模糊搜索" style="min-width:110px;"/></div>
+      <div class="sf"><label>缴费单ID</label><input id="pay_uuid" oninput="render()" placeholder="模糊搜索" style="min-width:130px;"/></div>
+      <div class="sf"><label>业务类型</label>
+        <select id="ss" onchange="render()" style="min-width:100px;">
+          <option value="">全部</option><option>社保</option><option>公积金</option>
+        </select>
+      </div>
+      <div class="sf"><label>缴费单状态</label>
+        <select id="pay_state_f" onchange="render()" style="min-width:130px;">
+          <option value="">全部</option>
+          <option>待获取</option><option>未核对</option><option>已核定未缴费</option>
+          <option>已缴费</option><option>缴费异常</option><option>确认缴费</option>
+        </select>
+      </div>
+      <div class="sf"><label>系统对账差异</label>
+        <select id="pay_diff" onchange="render()" style="min-width:160px;">
+          <option value="">全部</option>
+          <option>无差异</option><option>缴费金额有差异</option>
+          <option>缴费人数有差异</option><option>缴费金额和人数有差异</option>
+        </select>
+      </div>
+      <div class="sf"><label>实际扣款日期</label><input type="date" id="pay_deduct" oninput="render()" style="min-width:130px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;"/></div>
+      <div class="sf"><label>缴费单创建时间（起）</label><input type="datetime-local" id="pay_create_s" oninput="validatePayTime('create');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="sf"><label>缴费单创建时间（止）</label><input type="datetime-local" id="pay_create_e" oninput="validatePayTime('create');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="sf"><label>核定缴费时间（起）</label><input type="datetime-local" id="pay_confirm_s" oninput="validatePayTime('confirm');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="sf"><label>核定缴费时间（止）</label><input type="datetime-local" id="pay_confirm_e" oninput="validatePayTime('confirm');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="sf"><label>状态变更时间（起）</label><input type="datetime-local" id="pay_change_s" oninput="validatePayTime('change');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="sf"><label>状态变更时间（止）</label><input type="datetime-local" id="pay_change_e" oninput="validatePayTime('change');render()" style="min-width:170px;height:34px;padding:0 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:12px;"/></div>
+      <div class="search-actions" style="margin-left:auto;padding-bottom:0;display:flex;gap:8px;align-items:flex-end;">
+        <button class="btn btn-secondary" onclick="clearPayFilters()">重置</button>
+      </div>
+    </div>
+  </div>
+
   <div class="cond-bar" id="co"></div>
 </div>
 
@@ -286,8 +504,8 @@ tr.er:hover td{background:#FEE2E2;}
   <div class="card cur" id="cd0" onclick="sw(0)">
     <div class="card-icon-wrap ic-blue">📋</div>
     <div class="card-num" id="cn0">86人</div>
-    <div class="card-title">社保公积金变动名单台账</div>
-    <div class="card-sub" id="cs0">在保34人 · 增员42人 · 减员28人 · 补缴7人 · 调基9人</div>
+    <div class="card-title">社保公积金确认名单台账</div>
+    <div class="card-sub" id="cs0">在保人员34人，增员42人 · 减员28人 · 补缴7人 · 调基9人</div>
   </div>
   <div class="card" id="cd1" onclick="sw(1)">
     <div class="card-icon-wrap ic-green">📤</div>
@@ -299,7 +517,7 @@ tr.er:hover td{background:#FEE2E2;}
     <div class="card-icon-wrap ic-orange">💰</div>
     <div class="card-num" id="cn2">12个</div>
     <div class="card-title">社保公积金缴费台账</div>
-    <div class="card-sub" id="cs2">差异待确认2个 · 缴费异常2个 · 应缴12个 · 已缴费4个</div>
+    <div class="card-sub" id="cs2">差异待确认2人 · 缴费异常2人 · 应缴12人 · 已缴费4人</div>
   </div>
 
 </div>
@@ -374,6 +592,34 @@ tr.er:hover td{background:#FEE2E2;}
   </div>
 </div>
 
+<!-- RPA申报主体选择弹窗 -->
+<div class="modal-mask" id="rpaModal" onclick="closeRpaModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;">
+    <div class="modal-hd">
+      <h3>RPA申报 — 选择申报主体</h3>
+      <button class="modal-close" onclick="closeRpaModal()">✕</button>
+    </div>
+    <div class="modal-bd" style="padding:0;">
+      <div style="padding:10px 24px 8px;background:var(--blue-light);border-bottom:1px solid var(--blue-mid);font-size:12px;color:var(--blue);display:flex;align-items:center;gap:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        按「社保主体」「公积金主体」「特定工伤险主体」勾选后批量发起RPA申报，单次上限1000条。<br>
+        <span style="color:var(--gray-500)">当前角色：管理员（可见全量主体）；经办人仅可见账户及人员管理配置主体</span>
+      </div>
+      <div style="padding:8px 24px 4px;display:flex;align-items:center;justify-content:space-between;">
+        <label style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <input type="checkbox" id="rpaSelectAll" onchange="rpaToggleAll(this)" style="accent-color:var(--blue);width:14px;height:14px;"> 全选
+        </label>
+        <span id="rpaSelCount" style="font-size:12px;color:var(--gray-400);">已选 0 个主体</span>
+      </div>
+      <div id="rpaSubjectList" style="padding:0 24px 16px;max-height:300px;overflow-y:auto;"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeRpaModal()">取消</button>
+      <button class="btn btn-primary" id="rpaConfirmBtn" onclick="confirmRpaApply()">发起申报</button>
+    </div>
+  </div>
+</div>
+
 <!-- 导入工作台弹窗 -->
 <div class="modal-mask" id="importModal" onclick="closeImportModal(event)">
   <div class="modal-box" onclick="event.stopPropagation()" style="max-width:620px;">
@@ -433,13 +679,14 @@ function getV(id){const el=document.getElementById(id);return el?el.value.trim()
 function tag(v){
   if(!v)return'';
   const M={增员:'t-blue',减员:'t-gray',补缴:'t-orange',调基:'t-teal',在保人员:'t-purple',
+    系统生成:'t-blue',特殊工单:'t-orange',在保人员:'t-purple',
     常规维护:'t-gray',异地申请:'t-teal',紧急工单:'t-orange',在保数据:'t-purple',
     已:'t-green','否':'t-orange','是':'t-green',
     已缴费:'t-green',已核定未缴费:'t-orange',缴费异常:'t-red',未核对:'t-gray',
     无差异:'t-green',缴费金额有差异:'t-orange',缴费人数有差异:'t-orange','缴费金额和人数有差异':'t-red',
     社保系统:'t-blue',公积金系统:'t-teal',
     正常参保:'t-blue',异地参保:'t-purple',
-    未缴纳:'t-orange',已缴纳:'t-green',已停保:'t-gray',不缴纳:'t-red',
+    参保:'t-green',不参保:'t-orange',未缴纳:'t-orange',已缴纳:'t-green',已停保:'t-gray',不缴纳:'t-red',
     申报失败:'t-red',系统计算差异:'t-orange',系统对账差异:'t-orange',缴费失败:'t-red',
     增员申报成功:'t-green',减员申报成功:'t-green',补缴申报成功:'t-green',调基申报成功:'t-green'};
   return`<span class="tag ${M[v]||'t-gray'}">${v}</span>`;
@@ -457,7 +704,6 @@ function rh(items){
   }).join('');
   return`<span class="ins-cell ${c}" style="max-width:220px" onmouseenter="positionTip(event,this)" onmouseleave="hideTip()">${str}<span class="ins-tip">${tipHtml}</span></span>`;
 }
-function aF(it){return it&&it.some(i=>i.s==='申报失败');}
 
 // 参保险种浮层渲染
 function insCell(val,maxW){
@@ -496,12 +742,12 @@ function genConfirmData(month, changeData){
       d1:'大参林',d2:i%2===0?'零售事业部':'职能中心',d3:i%3===0?'华南区':i%3===1?'华中区':'职能部门',
       dept:DP[i%DP.length],
       change_type:'在保人员',社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+200).padStart(3,'0')}`,特定工伤主体:'',
-      参保状态:'已缴纳',参保形式:'正常参保',参保地:city,原参保地:'',申请参保地:'',
+      参保状态:'参保',参保形式:'正常参保',参保地:city,原参保地:'',申请参保地:'',
       参保险种:ins,公积金比例:['12%','10%','8%'][i%3],
       社保基数:String([5000,6000,7000,8000][i%4]),公积金基数:String([5000,6000,8000][i%3]),
       增员时间:'20'+String(22+(i%3))+'-'+String((i%12)+1).padStart(2,'0'),减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       名单更新时间:`${month}-0${(i%9)+1}`,名单是否确认:i<20?'是':'否',
-      source:'在保',
+      source:'在保人员',变动原因:'',
       证件类型:'居民身份证',
       证件号:`4401011${String(88+i%12).padStart(2,'0')}${String(i+200).padStart(4,'0')}****`,
       性别:i%2===0?'女':'男',民族:'汉',
@@ -541,7 +787,7 @@ function genData(month,total){
       性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%15}-${String((i%12)+1).padStart(2,'0')}-${String((i%28)+1).padStart(2,'0')}`,
       国籍地区:'中国',籍贯:['广东','湖南','四川','湖北','广西'][i%5],手机号:`1${String(38+i%6)}****${String(1000+i%9000).padStart(4,'0')}`,手机号码:`1${String(38+i%6)}****${String(1000+i%9000).padStart(4,'0')}`,
       婚姻状况:i%2===0?'已婚':'未婚',学历:['本科','大专','硕士','高中'][i%4],
-      人员类别:['工人','个人','干部','农民'][i%4],人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:['城市','农村'][i%2],职等:`L${(i%5)+2}`,
+      员工类别:'合同工',人员类别:['工人','个人','干部','农民'][i%4],人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:['城市','农村'][i%2],职等:`L${(i%5)+2}`,
       通讯地址:`广东省广州市天河区天河路${String(i+1).padStart(3,'0')}号`,银行:['中国工商银行','招商银行','中国建设银行','中国农业银行'][i%4],账号:`6222${String(1000000000+i*7).padStart(12,'0')}`,
       社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,责任中心名称:`CC-${pfx}-${String(i+1).padStart(3,'0')}`,责任中心编码:`CC${String(i+1).padStart(5,'0')}`,特定工伤主体:'',
       是否为特殊人员:'否',
@@ -550,7 +796,7 @@ function genData(month,total){
       参保险种:ins,公积金比例:['12%','10%','8%'][i%3],公积金个人比例:['12%','10%','8%'][i%3],
       社保基数:String([5000,6000,7000,8000,9000,10000,12000][i%7]),公积金基数:String([5000,6000,8000,10000][i%4]),
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
-      change_type:'增员',source:'常规维护',来源细分:'入职增员',
+      change_type:'增员',source:'系统生成',变动原因:'入职',来源细分:'入职增员',
       增员时间:month,减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','退伍兵','本地农村劳动力','其他'][i%7],
       职称:['工程师','高级工程师','技师','无'][i%4],户口所在地:['广东广州','湖南长沙','四川成都'][i%3],户口性质:['城市','农村'][i%2],
@@ -568,6 +814,7 @@ function genData(month,total){
       rpa_time:confirmed==='是'?`${month}-${String((i%9)+1).padStart(2,'0')} ${String(8+(i%10)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`:'',
       附件:confirmed==='是'&&!isE?[{name:`申报附件-${i+1}.pdf`,type:'社保申报附件'}]:[],
       名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:confirmed,
+      是否当月处理:['处理','处理','处理','暂不处理','处理'][i%5],处理月份:month,
       ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?(isE&&i%3===2?'申报失败':'申报成功'):'',rpa_sb_remark:isE&&i%3!==2?['证件号不匹配','减员时间超截止'][i%2]:'',rpa_gjj_remark:isE&&i%3===2?'公积金账户异常':'',isErr:isE});
   }
 
@@ -583,20 +830,20 @@ function genData(month,total){
       证件类型:'居民身份证',证件号:`4401031${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,
       性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${82+i%12}-${String((i%12)+1).padStart(2,'0')}-01`,
       国籍地区:'中国',籍贯:'广东',手机号:`139****${String(1000+i).padStart(4,'0')}`,手机号码:`139****${String(1000+i).padStart(4,'0')}`,
-      婚姻状况:'已婚',学历:'本科',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+3}`,
+      婚姻状况:'已婚',学历:'本科',员工类别:'合同工',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+3}`,
       通讯地址:`广东省广州市天河路${String(i+50).padStart(3,'0')}号`,银行:'招商银行',账号:`6222${String(2000000000+i*7).padStart(12,'0')}`,
       是否为特殊人员:'否',
       参保险种:ins,公积金比例:'12%',公积金个人比例:'12%',社保基数:String([6000,7000,8000][i%3]),公积金基数:String([6000,8000][i%2]),
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',
-      名单更新时间:`${month}-05`,名单是否确认:'是',
+      名单更新时间:`${month}-05`,名单是否确认:'是',是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:rpaOk,rpa_gjj_result:'申报成功',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     // 减员（原主体）
     rows.push({...base,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-ADJ-D${i}`,责任中心名称:`CC-ADJ-D${i}`,责任中心编码:`CADJD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'正常参保',参保地:SC[sjOld],原参保地:'',申请参保地:'',
       公积金单位比例:'12%',公积金单位费用:'720',公积金个人费用:'720',公积金合计:'1440',
-      change_type:'减员',source:'常规维护',来源细分:'调动减员',
+      change_type:'减员',source:'系统生成',变动原因:'主体变更',来源细分:'调动减员',
       增员时间:'',减员时间:month,减员原因:'组织架构调整',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'',社保增员生效月:'',公积金增员生效月:'',社保减员生效月:month,公积金减员生效月:month,
       申报类型:'减员',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
@@ -605,7 +852,7 @@ function genData(month,total){
     rows.push({...base,seq:0,社保主体:sjNew,公积金主体:sjNew,费用主体:sjNew,成本中心:`CC-${pfxNew}-ADJ${i}`,责任中心名称:`CC-${pfxNew}-ADJ${i}`,责任中心编码:`C${pfxNew}ADJ${i}`,特定工伤主体:'',
       参保状态:'未缴纳',参保形式:'正常参保',参保地:cityNew,原参保地:'',申请参保地:'',
       公积金单位比例:'12%',公积金单位费用:'720',公积金个人费用:'720',公积金合计:'1440',
-      change_type:'增员',source:'常规维护',来源细分:'调动增员',
+      change_type:'增员',source:'系统生成',变动原因:'主体变更',来源细分:'调动增员',
       增员时间:month,减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'就业转失业人员',社保增员生效月:month,公积金增员生效月:month,社保减员生效月:'',公积金减员生效月:'',
       申报类型:'增员',参加工作日期:`201${i%9+2}-0${(i%9)+1}-01`,就业形式:'雇佣就业',是否参加医疗补助:'否',所属学校:'',
@@ -623,26 +870,26 @@ function genData(month,total){
       证件类型:'居民身份证',证件号:`4401041${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,
       性别:i%2===0?'男':'女',民族:'汉',出生日期:`198${i%9}-0${(i%9)+1}-01`,
       国籍地区:'中国',籍贯:'广东',手机号:`138****${String(2000+i).padStart(4,'0')}`,手机号码:`138****${String(2000+i).padStart(4,'0')}`,
-      婚姻状况:'已婚',学历:'本科',人员类别:'干部',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:'L4',
+      婚姻状况:'已婚',学历:'本科',员工类别:'合同工',人员类别:'干部',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:'L4',
       通讯地址:`广东省广州市海珠区${String(i+10).padStart(3,'0')}号`,银行:'中国工商银行',账号:`6222${String(4000000000+i*7).padStart(12,'0')}`,
       是否为特殊人员:'否',
       参保险种:ins,公积金比例:'10%',公积金个人比例:'10%',社保基数:'8000',公积金基数:'8000',
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',
-      名单更新时间:`${month}-08`,名单是否确认:'否',
+      名单更新时间:`${month}-08`,名单是否确认:'否',是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     rows.push({...base2,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-CTR-D${i}`,责任中心名称:`CC-CTR-D${i}`,责任中心编码:`CCTRD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'正常参保',参保地:SC[sjOld],原参保地:'',申请参保地:'',
       公积金单位比例:'10%',公积金单位费用:'800',公积金个人费用:'800',公积金合计:'1600',
-      change_type:'减员',source:'常规维护',来源细分:'合同变更减员',
+      change_type:'减员',source:'系统生成',变动原因:'合同工转退休返聘',来源细分:'合同变更减员',
       增员时间:'',减员时间:month,减员原因:'组织架构调整',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'',社保增员生效月:'',公积金增员生效月:'',社保减员生效月:month,公积金减员生效月:month,
       申报类型:'减员',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',rpa_time:'',附件:[]});
     rows.push({...base2,seq:0,社保主体:sjNew,公积金主体:sjNew,费用主体:sjNew,成本中心:`CC-${pfxNew}-CTR${i}`,责任中心名称:`CC-${pfxNew}-CTR${i}`,责任中心编码:`C${pfxNew}CTR${i}`,特定工伤主体:'',
       参保状态:'未缴纳',参保形式:'正常参保',参保地:cityNew,原参保地:'',申请参保地:'',
       公积金单位比例:'10%',公积金单位费用:'800',公积金个人费用:'800',公积金合计:'1600',
-      change_type:'增员',source:'常规维护',来源细分:'合同变更增员',
+      change_type:'增员',source:'系统生成',变动原因:'合同工转退休返聘',来源细分:'合同变更增员',
       增员时间:month,减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'就业转失业人员',社保增员生效月:month,公积金增员生效月:month,社保减员生效月:'',公积金减员生效月:'',
       申报类型:'增员',参加工作日期:`201${i%9+2}-0${(i%9)+1}-01`,就业形式:'雇佣就业',是否参加医疗补助:'否',所属学校:'',rpa_time:'',附件:[]});
@@ -669,7 +916,7 @@ function genData(month,total){
       参保险种:ins,公积金比例:'10%',公积金个人比例:'10%',
       社保基数:String([5000,6000,7000,8000][i%4]),公积金基数:String([5000,6000,8000][i%3]),
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
-      change_type:'减员',source:'常规维护',来源细分:'离职减员',
+      change_type:'减员',source:'系统生成',变动原因:'离职',来源细分:'离职减员',
       增员时间:'',减员时间:month,减员原因:['主动离职','合同到期','被动离职','不胜任工作','违纪辞退'][i%5],
       调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',就业前身份:'',
       医疗缴费档次:'一档',社保增员生效月:'',公积金增员生效月:'',社保减员生效月:month,公积金减员生效月:month,
@@ -695,7 +942,7 @@ function genData(month,total){
       证件类型:'居民身份证',证件号:`4401061${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,
       性别:i%2===0?'男':'女',民族:'汉',出生日期:`19${78+i%15}-${String((i%12)+1).padStart(2,'0')}-01`,
       国籍地区:'中国',籍贯:'广东',手机号:`135****${String(4000+i).padStart(4,'0')}`,手机号码:`135****${String(4000+i).padStart(4,'0')}`,
-      婚姻状况:'已婚',学历:'本科',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+2}`,
+      婚姻状况:'已婚',学历:'本科',员工类别:'合同工',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+2}`,
       通讯地址:`广东省广州市天河区${String(i+300).padStart(3,'0')}号`,银行:'中国工商银行',账号:`6222${String(6000000000+i*7).padStart(12,'0')}`,
       社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-T${String(i+1).padStart(3,'0')}`,责任中心名称:`CC-${pfx}-T${String(i+1).padStart(3,'0')}`,责任中心编码:`CT${String(i+1).padStart(5,'0')}`,特定工伤主体:'',
       是否为特殊人员:'否',
@@ -706,7 +953,7 @@ function genData(month,total){
       原社保基数:String(oldBase),现社保基数:String(newBase),
       原公积金基数:String([4500,5500,7500][i%3]),现公积金基数:String([5000,6000,8000][i%3]),
       原公积金个人比例:['10%','8%','5%'][i%3],现公积金个人比例:['12%','10%','8%'][i%3],
-      change_type:'调基',source:'常规维护',来源细分:'调基',
+      change_type:'调基',source:'系统生成',变动原因:'年度调基',来源细分:'调基',
       增员时间:'',减员时间:'',减员原因:'',调基时间:month,补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'',医疗缴费档次:'一档',
       社保增员生效月:'',公积金增员生效月:'',社保减员生效月:'',公积金减员生效月:'',
@@ -719,7 +966,7 @@ function genData(month,total){
       职称:'',户口所在地:'广东广州',户口性质:'城市',
       申报类型:'调基',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:`${month}-03 14:${String(i%60).padStart(2,'0')}:00`,附件:[],
-      名单更新时间:`${month}-03`,名单是否确认:'是',
+      名单更新时间:`${month}-03`,名单是否确认:'是',是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?'申报成功':'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false});
   }
 
@@ -734,20 +981,20 @@ function genData(month,total){
       证件类型:'居民身份证',证件号:`4401071${String(88+i%12).padStart(2,'0')}${String(i).padStart(4,'0')}****`,
       性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${85+i%10}-0${(i%9)+1}-01`,
       国籍地区:'中国',籍贯:'广东',手机号:`137****${String(5000+i).padStart(4,'0')}`,手机号码:`137****${String(5000+i).padStart(4,'0')}`,
-      婚姻状况:'已婚',学历:'本科',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:'L3',
+      婚姻状况:'已婚',学历:'本科',员工类别:'合同工',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:'L3',
       通讯地址:`广东省广州市海珠区${String(i+400).padStart(3,'0')}号`,银行:'招商银行',账号:`6222${String(7000000000+i*7).padStart(12,'0')}`,
       是否为特殊人员:'否',
       参保险种:ins,公积金比例:'12%',公积金个人比例:'12%',社保基数:'7000',公积金基数:'7000',
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
       医疗缴费档次:'一档',银行账户类别:'对私',启封原因:'',开户原因:'',调整原因:'',调整类型:'',
       补缴月份:'',社保补缴月份:'',公积金补缴月份:'',补缴类型:'',职称:'',户口所在地:'广东广州',户口性质:'城市',
-      名单更新时间:`${month}-12`,名单是否确认:'否',
+      名单更新时间:`${month}-12`,名单是否确认:'否',是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false};
     // 减员（原主体）
     rows.push({...base3,seq:0,社保主体:sjOld,公积金主体:sjOld,费用主体:sjOld,成本中心:`CC-YD-D${i}`,责任中心名称:`CC-YD-D${i}`,责任中心编码:`CYDD${i}`,特定工伤主体:'',
       参保状态:'已停保',参保形式:'异地参保',参保地:SC[sjOld],原参保地:SC[sjOld],申请参保地:cityNew,
       公积金单位比例:'12%',公积金单位费用:'840',公积金个人费用:'840',公积金合计:'1680',
-      change_type:'减员',source:'异地申请',来源细分:'异地申请减员',
+      change_type:'减员',source:'系统生成',变动原因:'异地申请',来源细分:'异地申请减员',
       增员时间:'',减员时间:month,减员原因:'因公外派',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'',社保增员生效月:'',公积金增员生效月:'',社保减员生效月:month,公积金减员生效月:month,
       申报类型:'减员',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',rpa_time:'',附件:[]});
@@ -755,7 +1002,7 @@ function genData(month,total){
     rows.push({...base3,seq:0,社保主体:sjNew,公积金主体:sjNew,费用主体:sjNew,成本中心:`CC-${pfxNew}-YD${i}`,责任中心名称:`CC-${pfxNew}-YD${i}`,责任中心编码:`C${pfxNew}YD${i}`,特定工伤主体:'',
       参保状态:'未缴纳',参保形式:'异地参保',参保地:cityNew,原参保地:SC[sjOld],申请参保地:cityNew,
       公积金单位比例:'12%',公积金单位费用:'840',公积金个人费用:'840',公积金合计:'1680',
-      change_type:'增员',source:'异地申请',来源细分:'异地申请增员',
+      change_type:'增员',source:'系统生成',变动原因:'异地申请',来源细分:'异地申请增员',
       增员时间:month,减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'就业转失业人员',社保增员生效月:month,公积金增员生效月:month,社保减员生效月:'',公积金减员生效月:'',
       申报类型:'增员',参加工作日期:'',就业形式:'雇佣就业',是否参加医疗补助:'否',所属学校:'',rpa_time:'',附件:[]});
@@ -774,9 +1021,9 @@ function genData(month,total){
       性别:i%2===0?'男':'女',民族:'汉',出生日期:`19${84+i%10}-0${(i%9)+1}-01`,
       国籍地区:'中国',籍贯:['广东','湖南'][i%2],手机号:`133****${String(6000+i).padStart(4,'0')}`,手机号码:`133****${String(6000+i).padStart(4,'0')}`,
       婚姻状况:i%3===0?'未婚':'已婚',学历:['本科','大专'][i%2],
-      人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%4)+2}`,
+      员工类别:'合同工',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%4)+2}`,
       通讯地址:`广东省广州市番禺区${String(i+500).padStart(3,'0')}号`,银行:['中国工商银行','招商银行'][i%2],账号:`6222${String(8000000000+i*7).padStart(12,'0')}`,
-      社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-U${String(i+1).padStart(3,'0')}`,责任中心名称:`CC-${pfx}-U${String(i+1).padStart(3,'0')}`,责任中心编码:`CU${String(i+1).padStart(5,'0')}`,特定工伤主体:'',
+      社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-U${String(i+1).padStart(3,'0')}`,责任中心名称:`CC-${pfx}-U${String(i+1).padStart(3,'0')}`,责任中心编码:`CU${String(i+1).padStart(5,'0')}`,特定工伤主体:i%3===0?sj:'',
       是否为特殊人员:'否',
       参保状态:ct==='减员'?'已停保':ct==='增员'?'未缴纳':'已缴纳',
       参保形式:'正常参保',参保地:city,原参保地:'',申请参保地:'',
@@ -786,7 +1033,7 @@ function genData(month,total){
       原社保基数:ct==='调基'?String([5500,6500,7500,8500][i%4]):'',现社保基数:ct==='调基'?String([6000,7000,8000,9000][i%4]):'',
       原公积金基数:ct==='调基'?String([5500,7500][i%2]):'',现公积金基数:ct==='调基'?String([6000,8000][i%2]):'',
       原公积金个人比例:ct==='调基'?'10%':'',现公积金个人比例:ct==='调基'?'12%':'',
-      change_type:ct,source:'紧急工单',来源细分:'紧急工单',
+      change_type:ct,source:'特殊工单',变动原因:'',来源细分:'特殊工单',
       增员时间:ct==='增员'?month:'',减员时间:ct==='减员'?month:'',
       减员原因:ct==='减员'?'主动离职':'',调基时间:ct==='调基'?month:'',
       补缴开始:ct==='补缴'?`${month.substring(0,4)}-0${Math.max(1,parseInt(month.substring(5,7))-1)}`:'',
@@ -807,6 +1054,7 @@ function genData(month,total){
       就业形式:ct==='增员'?'雇佣就业':'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:`${month}-${String((i%9)+1).padStart(2,'0')} ${String(14+(i%8)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`,
       附件:[],名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:'是',
+      是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?'申报成功':'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false});
   }
 
@@ -822,16 +1070,16 @@ function genData(month,total){
       性别:i%2===0?'女':'男',民族:'汉',出生日期:`19${80+i%15}-${String((i%12)+1).padStart(2,'0')}-01`,
       国籍地区:'中国',籍贯:['广东','湖南','四川'][i%3],手机号:`132****${String(7000+i).padStart(4,'0')}`,手机号码:`132****${String(7000+i).padStart(4,'0')}`,
       婚姻状况:'已婚',学历:['本科','大专','硕士'][i%3],
-      人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+2}`,
+      员工类别:'合同工',人员类别:'工人',人员状态:'在职',用工形式:'合同',特定人员:'',户口类型:'城市',职等:`L${(i%5)+2}`,
       通讯地址:`广东省广州市天河区天河路${String(i+100).padStart(3,'0')}号`,
       银行:['中国工商银行','招商银行'][i%2],账号:`6222${String(3000000000+i*7).padStart(12,'0')}`,
       社保主体:sj,公积金主体:sj,费用主体:sj,成本中心:`CC-${pfx}-2${String(i+1).padStart(2,'0')}`,责任中心名称:`CC-${pfx}-2${String(i+1).padStart(2,'0')}`,责任中心编码:`CZ${String(i+1).padStart(5,'0')}`,特定工伤主体:'',
       是否为特殊人员:'否',
-      参保状态:'已缴纳',参保形式:'正常参保',参保地:city,原参保地:'',申请参保地:'',
+      参保状态:'参保',参保形式:'正常参保',参保地:city,原参保地:'',申请参保地:'',
       参保险种:ins,公积金比例:['12%','10%','8%'][i%3],公积金个人比例:['12%','10%','8%'][i%3],
       社保基数:String([5000,6000,7000,8000,9000,10000][i%6]),公积金基数:String([5000,6000,8000][i%3]),
       原公积金比例:'',现公积金比例:'',原社保基数:'',现社保基数:'',原公积金基数:'',现公积金基数:'',原公积金个人比例:'',现公积金个人比例:'',
-      change_type:'在保人员',source:'在保人员',来源细分:'在保人员',
+      change_type:'在保人员',source:'在保人员',变动原因:'',来源细分:'在保人员',
       增员时间:'',减员时间:'',减员原因:'',调基时间:'',补缴开始:'',补缴结束:'',补缴原因:'',
       就业前身份:'',医疗缴费档次:'一档',
       社保增员生效月:'',公积金增员生效月:'',社保减员生效月:'',公积金减员生效月:'',
@@ -843,6 +1091,7 @@ function genData(month,total){
       职称:'',户口所在地:'',户口性质:'城市',
       申报类型:'',参加工作日期:'',就业形式:'',是否参加医疗补助:'否',所属学校:'',
       rpa_time:'',附件:[],名单更新时间:`${month}-01`,名单是否确认:'是',
+      是否当月处理:'处理',处理月份:month,
       ticket_month:month,rpa_sb_items:[],rpa_gjj_result:'',rpa_sb_remark:'',rpa_gjj_remark:'',isErr:false
     });
   }
@@ -1059,11 +1308,11 @@ const D2_JF=[
   {time:'2026-03-12 16:30',ft:'缴费失败',sm:'大参林（广州）',gm:'大参林（广州）',fm:'大参林（广州）',cc:'CC-GZ',sysType:'公积金系统',bd:'广州市',payUuid:'PAY-GZ-202603-002',jfzje:'43200.00',jfrs:'36',jscy:'',jfzt:'缴费异常',jfbz:'银行账户余额不足，扣款失败',hdsj:'2026-03-11 09:00',jfztbgsj:'2026-03-12 16:30',znje:'120.00',month:'2026-03'},
 ];
 
-let card=0,vt='全部',pg=1,ea=new Set(),df='';const PZ=20;
+let card=0,vt='增员',pg=1,ea=new Set(),df='';const PZ=20;
 // 4个台账对应的 tabs / 操作按钮配置
 const CF=[
-  // 0: 社保公积金变动名单台账 — 分页Tab：全部/增员/减员/调基/补缴；操作：批改/删除/导出（无新增）
-  {tabs:['全部','增员','减员','调基','补缴'],ac:[{l:'批改',c:''},{l:'删除',c:''},{l:'导出',c:''}]},
+  // 0: 社保公积金确认名单台账 — 分页Tab：增员/减员/调基/补缴/在保人员；操作：批改/导出（无新增无删除，PRD规定）
+  {tabs:['增员','减员','调基','补缴','在保人员'],ac:[{l:'批改',c:''},{l:'导出',c:''}]},
   // 1: 社保公积金申报台账 — 分页：全部/申报失败；操作：RPA申报/导出
   {tabs:['全部','申报失败'],ac:[{l:'RPA申报（批量）',c:'blue'},{l:'导出',c:''}]},
   // 2: 社保公积金缴费台账 — 分页：全部/差异待确认/缴费异常/已缴费/费用明细台账；操作：重新计算/核定缴费完成/导出
@@ -1073,9 +1322,18 @@ const CF=[
 
 function sw(i){
   card=i;
-  vt='全部';
+  vt = i===0 ? '增员' : '全部';
   pg=1;ea=new Set();df='';
   document.querySelectorAll('.card').forEach((c,j)=>c.classList.toggle('cur',i===j));
+  const isPayCard = i===2;
+  // 缴费台账时：隐藏通用字段（.r1e），展示缴费专属筛选区
+  document.querySelectorAll('.r1e').forEach(el=>el.style.display=isPayCard?'none':'');
+  document.getElementById('filterRow2').style.display = 'none';
+  document.getElementById('filterRowPay').style.display = isPayCard ? '' : 'none';
+  const expandBtn = document.querySelector('[onclick="toggleMoreFilters()"]');
+  if(expandBtn) expandBtn.style.display = isPayCard ? 'none' : '';
+  const ml = document.getElementById('monthLabel');
+  if(ml) ml.textContent = isPayCard ? '缴费月份' : '生效月份';
   render();
 }
 
@@ -1129,16 +1387,104 @@ function clearField(id){
   render();
 }
 function clearAll(){
-  ['sn','se'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['sunit','ssj','ss'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['sn','se','sidcard','ssb_inc','sgjj_inc','ssb_dec','sgjj_dec','sprocmonth','ssb_adj','sgjj_adj',
+   'ssb_bkstart','ssb_bkend','sgjj_bkstart','sgjj_bkend'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}});
+  ['ssource','sreason','sspecial','sjob','sempcat','scity','ssj','sgjj','stdsb','sbstate','sbform',
+   'slevel','sprocess','sconfirm','ssbmonth','sgjjmonth','smanual','supdatebase','sd1','sdept'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pay_city','ss','pay_state_f','pay_diff','sunit'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pay_sbno','pay_sbno_yl','pay_sbno_yld','pay_gjjno','pay_uuid','pay_deduct',
+   'pay_create_s','pay_create_e','pay_confirm_s','pay_confirm_e','pay_change_s','pay_change_e'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}});
   document.getElementById('smonth').value='2026-03';
   document.querySelectorAll('.sct-opt').forEach(el=>el.checked=false);
-  const allCb=document.getElementById('sct-all');
-  if(allCb)allCb.checked=false;
+  const allCb=document.getElementById('sct-all');if(allCb)allCb.checked=false;
+  clearSins();
   sctChange();
-  pg=1;vt='全部';
+  pg=1;vt=card===0?'增员':'全部';
   render();
 }
+
+function toggleMoreFilters(){
+  const row2=document.getElementById('filterRow2');
+  const btn=document.querySelector('[onclick="toggleMoreFilters()"]');
+  const open=row2.style.display!=='none';
+  row2.style.display=open?'none':'block';
+  if(btn)btn.textContent=open?'展开 ▾':'收起 ▴';
+}
+
+function toggleSelectAll(cb){
+  document.querySelectorAll('tbody input.chk').forEach(el=>el.checked=cb.checked);
+}
+function syncSelectAll(){
+  const all=Array.from(document.querySelectorAll('tbody input.chk'));
+  const checked=all.filter(el=>el.checked);
+  const hd=document.getElementById('selectAllChk');
+  if(!hd)return;
+  hd.checked=all.length>0&&checked.length===all.length;
+  hd.indeterminate=checked.length>0&&checked.length<all.length;
+}
+
+function toggleIns(){
+  const dd=document.getElementById('sins-dropdown');
+  const isOpen=dd.style.display!=='none';
+  dd.style.display=isOpen?'none':'block';
+  if(!isOpen){
+    const close=function(e){if(!document.getElementById('sins-wrap').contains(e.target)){dd.style.display='none';document.removeEventListener('click',close);}};
+    setTimeout(()=>document.addEventListener('click',close),0);
+  }
+}
+function getSins(){return Array.from(document.querySelectorAll('.sins-opt:checked')).map(el=>el.value);}
+function insChange(){
+  const vals=getSins();
+  const btn=document.getElementById('sins-btn');
+  const txt=vals.length===0?'全部':vals.length===1?vals[0]:`${vals.length}项已选`;
+  btn.childNodes[0].textContent=txt;
+  btn.style.color=vals.length>0?'var(--blue)':'var(--gray-500)';
+  btn.style.borderColor=vals.length>0?'var(--blue)':'var(--gray-200)';
+  btn.style.background=vals.length>0?'var(--blue-light)':'#fff';
+  render();
+}
+function clearSins(){document.querySelectorAll('.sins-opt').forEach(el=>el.checked=false);insChange();}
+
+function validateBkTime(){
+  const pairs=[['ssb_bkstart','ssb_bkend'],['sgjj_bkstart','sgjj_bkend']];
+  pairs.forEach(([startId,endId])=>{
+    const s=getV(startId),e=getV(endId);
+    const endEl=document.getElementById(endId);
+    if(s&&e&&s>e){
+      endEl.style.borderColor='var(--red)';
+      endEl.title='开始时间不能晚于结束时间';
+    } else {
+      endEl.style.borderColor='';endEl.title='';
+    }
+  });
+  render();
+}
+
+// 缴费台账时间范围实时校验（黄色 toast 提醒，不阻断）
+function validatePayTime(type){
+  const pairs={create:['pay_create_s','pay_create_e'],confirm:['pay_confirm_s','pay_confirm_e'],change:['pay_change_s','pay_change_e']};
+  const ids=type?[pairs[type]]:Object.values(pairs);
+  ids.forEach(([s,e])=>{
+    const sv=getV(s),ev=getV(e),el=document.getElementById(e);
+    if(!el)return;
+    if(sv&&ev&&sv>ev){
+      el.style.borderColor='var(--orange)';
+      el.title='开始时间不得晚于结束时间';
+      showToast('开始时间不得晚于结束时间','warn');
+    } else {
+      el.style.borderColor='';el.title='';
+    }
+  });
+}
+
+function clearPayFilters(){
+  ['pay_city','ss','pay_state_f','pay_diff'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pay_sbno','pay_sbno_yl','pay_sbno_yld','pay_gjjno','pay_uuid','pay_deduct',
+   'pay_create_s','pay_create_e','pay_confirm_s','pay_confirm_e','pay_change_s','pay_change_e',
+   'sunit'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}});
+  pg=1;render();
+}
+
 function goP(p){pg=p;render();}
 function gD(ai){vt='费用明细台账';df=ai;pg=1;render();}
 
@@ -1157,7 +1503,7 @@ function render(){
   const cConf=changeData.filter(r=>r.名单是否确认==='是').length;
   const cFail=changeData.filter(r=>isErrRow(r)).length;
   document.getElementById('cn0').textContent=cTotal+'人';
-  document.getElementById('cs0').textContent=`在保${insuredN}人 · 增员${cInc}人 · 减员${cDec}人 · 补缴${cBak}人 · 调基${cAdj}人`;
+  document.getElementById('cs0').textContent=`在保人员${insuredN}人，增员${cInc}人 · 减员${cDec}人 · 补缴${cBak}人 · 调基${cAdj}人`;
 
   // card 1：社保公积金申报台账 — 应增/实增/增员异常；减员/实减/减员异常；补缴/调基
   const changeOnly=changeData.filter(r=>r.change_type!=='在保人员');
@@ -1168,7 +1514,7 @@ function render(){
   const cDecSucc=changeOnly.filter(r=>r.change_type==='减员'&&r.名单是否确认==='是'&&r.rpa_sb_items&&r.rpa_sb_items.every(i=>i.s==='申报成功')&&r.rpa_gjj_result!=='申报失败').length;
   const cDecErr=changeOnly.filter(r=>r.change_type==='减员'&&isErrRow(r)).length;
   document.getElementById('cn1').textContent=changeOnly.length+'人';
-  document.getElementById('cs1').textContent=`应增${cInc}人·实增${cIncSucc}人·增员异常${cIncErr}人\n应减${cDec}人·实减${cDecSucc}人·减员异常${cDecErr}人 · 补缴${cBak}人·调基${cAdj}人`;
+  document.getElementById('cs1').textContent=`应增${cInc}人·实增${cIncSucc}人·增员异常${cIncErr}人\n应减${cDec}人·实减${cDecSucc}人·减员异常${cDecErr}人\n补缴${cBak}人·调基${cAdj}人`;
 
   // card 2：缴费台账 — 按当前月份动态计算
   const monthDA=DA.filter(a=>a.month===month);
@@ -1177,10 +1523,10 @@ function render(){
   const paidN=monthDA.filter(a=>a.pay_state==='已缴费').length;
   const totalN=monthDA.length;
   document.getElementById('cn2').textContent=totalN+'个';
-  document.getElementById('cs2').textContent=`差异待确认${diffN}个 · 缴费异常${errN}个 · 应缴${totalN}个 · 已缴费${paidN}个`;
+  document.getElementById('cs2').textContent=`差异待确认${diffN}人 · 缴费异常${errN}人 · 应缴${totalN}人 · 已缴费${paidN}人`;
 
   // 已选条件
-  const labels={smonth:'月份',sn:'员工姓名',se:'员工号',sunit:'单位名称',ssj:'社保主体',ss:'申报系统',sft:'失败类型'};
+  const labels={smonth:'月份',sn:'姓名',se:'员工号',sidcard:'证件号',sunit:'单位名称',ssj:'社保主体',sgjj:'公积金主体',stdsb:'特定工伤险主体',sconfirm:'名单是否确认',sprocess:'是否当月处理',ssource:'数据来源',sreason:'变动原因',smanual:'是否人工处理',supdatebase:'是否更新基础数据',sspecial:'是否特殊人员',sjob:'职等',sempcat:'员工类别',scity:'参保地',sbstate:'参保状态',sbform:'参保形式',slevel:'缴费档次',ssbmonth:'社保补缴月份',sgjjmonth:'公积金补缴月份',sd1:'一级部门',sdept:'部门名称',ssb_inc:'社保增员生效月',sgjj_inc:'公积金增员生效月',ssb_dec:'社保减员生效月',sgjj_dec:'公积金减员生效月',sprocmonth:'处理月份',ssb_adj:'社保调基时间',sgjj_adj:'公积金调整时间'};
   const labelIds=Object.keys(labels);
   const coEl=document.getElementById('co');
   const tags=labelIds.map(id=>{const v=getV(id);return v?`<span class="cond-tag">${labels[id]}: ${v}<span class="x" onclick="clearField('${id}')">×</span></span>`:null;}).filter(Boolean);
@@ -1191,8 +1537,17 @@ function render(){
 
   if(card===0)rChange(changeData,0);     // 变动名单台账：含在保人员 + 变动人员
   else if(card===1){
-    // 申报台账：仅变动人员（不含在保人员）；名单是否确认全部为是（确认名单结束时间触发回写/紧急工单直接入）
-    const sbData=changeData.filter(r=>r.change_type!=='在保人员').map(r=>({...r,名单是否确认:'是'}));
+    // 申报台账：仅变动人员（不含在保人员）
+    // 回写规则（PRD 5.5）：变动类型=增员/减员/补缴/调基，参保状态=参保，当月是否处理=处理
+    const sbData=changeData
+      .filter(r=>r.change_type!=='在保人员')
+      .filter(r=>['增员','减员','补缴','调基'].includes(r.change_type))
+      .map(r=>({
+        ...r,
+        名单是否确认:'是',      // 确认名单结束时间触发回写 / 紧急工单直接入
+        参保状态:'参保',          // 回写至申报台账时参保状态=参保
+        是否当月处理:'处理'       // 回写时当月是否处理=处理
+      }));
     rChange(sbData,1);
   }
   else if(card===2)rPay(month);
@@ -1209,16 +1564,19 @@ function ltHtml(tabsWithCount,c){
     return`<div class="tab${isCur?' cur':''}" onclick="svt('${xl}')">${xl}${cnt?`<span class="tab-count">${cnt}</span>`:''}</div>`;
   }).join('');
   const ah=c.ac.map(a=>{
-    if(a.l==='RPA申报（批量）'&&(card!==1||vt==='申报失败'))return'';
-    if(a.l==='核定缴费完成'&&(vt==='已缴费'||vt==='费用明细台账'))return'';
+    // PRD：RPA申报在申报台账（card=1）所有tab都显示（当前页均可发起）
+    if(a.l==='RPA申报（批量）'&&card!==1)return'';
+    // PRD：重新计算 仅在全部(N)、差异待确认(N)分页展示
     if(a.l==='重新计算'&&(card!==2||vt==='缴费异常'||vt==='已缴费'||vt==='费用明细台账'))return'';
+    // PRD：核定缴费完成 在全部(N)、差异待确认(N)、缴费异常(N)分页展示
+    if(a.l==='核定缴费完成'&&(vt==='已缴费'||vt==='费用明细台账'))return'';
     const icon={
       'RPA申报（批量）':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>',
       '导出':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>',
       '核定缴费完成':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>',
       '重新计算':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
     }[a.l]||'';
-    const onclick = a.l==='新增'?(card===0?'openNewRow()':'openNewConfirmRow()'):a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':a.l==='RPA申报（批量）'?'alert(\'RPA申报发起中\')':a.l==='核定缴费完成'?'confirmPaySelected()':a.l==='重新计算'?'recalcCost()':'';
+    const onclick = a.l==='新增'?(card===0?'openNewRow()':'openNewConfirmRow()'):a.l==='删除'?'deleteSelected()':a.l==='导出'?'alert(\'导出工作台功能开发中\')':a.l==='RPA申报（批量）'?'batchRpaApply()':a.l==='核定缴费完成'?'confirmPaySelected()':a.l==='重新计算'?'recalcCost()':'';
     const danger = a.l==='删除'?' style="color:var(--red);border-color:var(--gray-200);"':'';
     return`<button class="btn${a.c==='blue'?' btn-primary':' btn-secondary'} btn-sm btn-icon"${danger} onclick="${onclick}">${icon}${a.l}</button>`;
   }).join('');
@@ -1244,34 +1602,36 @@ function pgHtml(tot,PZ){
 // mode=1：申报台账，有分页Tab(全部/申报失败)，有RPA列，操作=编辑/上传附件/RPA申报/已人工处理/更新基础数据/导出
 
 // 基础列（两个台账共用）
-const BASE_COLS=['','序号','生效月份','数据来源','变动类型','是否为特殊人员','一级部门','二级部门','三级部门','部门名称','员工号','姓名','证件号','员工类别','管培生身份生效日期','是否管培生','管培生类型','职等','就业前身份','人员类别','人员状态','用工类型','社保主体','公积金主体','费用主体','责任中心名称','责任中心编码','特定工伤险主体','参保状态','参保形式','参保地','原参保地','申请参保地','参保险种','公积金个人比例','原公积金个人比例','现公积金个人比例','社保单位基数','原社保单位基数','现社保单位基数','社保个人基数','原社保个人基数','现社保个人基数','公积金基数','原公积金基数','现公积金基数','公积金单位比例','公积金单位费用','公积金个人费用','公积金合计','缴费档次','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','启封原因','开户原因','减员原因','调整原因','调整类型','调基时间','社保补缴开始时间','社保补缴结束时间','社保补缴月份','公积金补缴开始时间','公积金补缴结束时间','公积金补缴月份','补缴原因','补缴类型','特定人员类型','职称','性别','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','通讯地址','银行','账号','银行账户类别','名单更新时间','名单是否确认'];
-// 申报台账额外列（RPA执行字段）
-const RPA_COLS=['参加工作日期','是否参加医疗补助','就业形式','所属学校','申报类型','RPA申报时间','是否人工处理','人工处理时间','人工处理备注','是否更新基础数据','更新基础数据时间','RPA社保申报结果','RPA社保申报结果备注','RPA公积金申报结果','RPA公积金申报结果备注','附件'];
+const BASE_COLS=['','序号','生效月份','数据来源','变动原因','变动类型','是否为特殊人员','一级部门','二级部门','三级部门','部门名称','员工号','姓名','证件号','员工类别','职等','参加工作日期','就业前身份','人员类别','人员状态','用工形式','社保主体','公积金主体','费用主体','责任中心名称','责任中心编码','特定工伤险主体','参保状态','参保形式','参保地','参保险种','公积金个人比例','原公积金个人比例','社保单位基数','原社保单位基数','社保个人基数','原社保个人基数','公积金基数','原公积金基数','公积金单位比例','公积金单位费用','公积金个人费用','公积金合计','缴费档次','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','启封原因','开户原因','减员原因','调整原因','调整类型','社保调基时间','公积金基数&比例调整时间','社保补缴开始时间','社保补缴结束时间','社保补缴月份','公积金补缴开始时间','公积金补缴结束时间','公积金补缴月份','补缴原因','补缴类型','特定人员类型','是否当月处理','处理月份','名单是否确认','职称','性别','年龄','民族','出生日期','国籍地区','籍贯','户口所在地','户口性质','手机号','婚姻状况','学历','证件类型','通讯地址','银行名称','银行账户','银行账户类别','名单更新时间'];
+// 在保人员tab专属列（PRD明确列出的字段）
+const INSURED_COLS=['','序号','生效月份','数据来源','一级部门','二级部门','三级部门','部门名称','姓名','证件号','员工号','性别','年龄','职等','员工类别','缴费档次','参保险种','社保主体','公积金主体','特定工伤险主体','费用主体','责任中心名称','责任中心编码','社保单位基数','社保个人基数','公积金基数','公积金个人比例','社保增员生效月','公积金增员生效月','社保减员生效月','公积金减员生效月','社保调基时间','公积金基数&比例调整时间','参保状态','参保形式','特定人员类型'];
+const RPA_COLS=['参加工作日期','是否参加医疗补助','就业形式','所属学校','从业单位','写入时间','申报类型','RPA申报时间','是否人工处理','人工处理时间','人工处理备注','是否更新基础数据','更新基础数据时间','RPA社保申报结果','RPA社保申报结果备注','RPA公积金申报结果','RPA公积金申报结果备注','附件'];
 // 两个台账的完整列定义
 const CHANGE_COLS=[...BASE_COLS,'操作'];
 const CC=[...BASE_COLS,...RPA_COLS,'操作'];
 
 function rowCells(r){
+  // 计算年龄
+  const age = r.出生日期 ? (new Date().getFullYear() - parseInt(r.出生日期.substring(0,4))) : '';
   return `
     <td><input type="checkbox" class="chk"/></td>
     <td>${r.seq}</td>
     <td>${r.ticket_month||r.生效月份||''}</td>
     <td>${tag(r.source||'')}</td>
+    <td>${tx(r.变动原因||r.来源细分||'')}</td>
     <td>${tag(r.change_type)}</td>
     <td>${tag(r.是否为特殊人员||'否')}</td>
     <td>${tx(r.d1||'')}</td><td>${tx(r.d2||'')}</td><td>${tx(r.d3||'')}</td><td>${tx(r.dept||'')}</td>
     <td style="color:var(--gray-500)">${r.emp}</td>
     <td class="name-link">${r.name}</td>
     <td style="color:var(--gray-400);font-size:12px">${tx(r.证件号||'')}</td>
-    <td>${tx(r.用工形式||'合同工')}</td>
-    <td style="color:var(--gray-400);font-size:12px">${tx(r.管培生身份生效日期||'')}</td>
-    <td>${tag(r.是否管培生||'否')}</td>
-    <td>${tx(r.管培生类型||'非管培生')}</td>
+    <td>${tx(r.员工类别||'合同工')}</td>
     <td>${tx(r.职等||'')}</td>
+    <td style="color:var(--gray-400);font-size:12px">${tx(r.参加工作日期||'')}</td>
     <td>${tx(r.就业前身份||'')}</td>
     <td>${tag(r.人员类别||'')}</td>
     <td>${tx(r.人员状态||'')}</td>
-    <td>${tx(r.用工形式||r.用工类型||'')}</td>
+    <td>${tx(r.用工形式||'')}</td>
     <td>${tx(r.社保主体||'')}</td>
     <td>${tx(r.公积金主体||'')}</td>
     <td>${tx(r.费用主体||'')}</td>
@@ -1281,21 +1641,15 @@ function rowCells(r){
     <td>${tag(r.参保状态||'')}</td>
     <td>${tag(r.参保形式||'')}</td>
     <td>${tx(r.参保地||'')}</td>
-    <td>${tx(r.原参保地||'')}</td>
-    <td>${tx(r.申请参保地||'')}</td>
     <td>${insCell(r.参保险种||'',240)}</td>
     <td>${tx(r.公积金个人比例||r.公积金比例||'')}</td>
     <td>${tx(r.原公积金个人比例||r.原公积金比例||'')}</td>
-    <td>${tx(r.现公积金个人比例||r.现公积金比例||'')}</td>
     <td>${tx(r.社保基数||'')}</td>
     <td>${tx(r.原社保基数||'')}</td>
-    <td>${tx(r.现社保基数||'')}</td>
     <td>${tx(r.社保基数||'')}</td>
     <td>${tx(r.原社保基数||'')}</td>
-    <td>${tx(r.现社保基数||'')}</td>
     <td>${tx(r.公积金基数||'')}</td>
     <td>${tx(r.原公积金基数||'')}</td>
-    <td>${tx(r.现公积金基数||'')}</td>
     <td>${tx(r.公积金单位比例||'')}</td>
     <td>${tx(r.公积金单位费用||'')}</td>
     <td>${tx(r.公积金个人费用||'')}</td>
@@ -1311,6 +1665,7 @@ function rowCells(r){
     <td>${tx(r.调整原因||'')}</td>
     <td>${tx(r.调整类型||'')}</td>
     <td>${tx(r.调基时间||'')}</td>
+    <td>${tx(r.调基时间||'')}</td>
     <td>${tx(r.社保补缴开始时间||r.补缴开始||'')}</td>
     <td>${tx(r.社保补缴结束时间||r.补缴结束||'')}</td>
     <td>${tx(r.社保补缴月份||'')}</td>
@@ -1320,8 +1675,12 @@ function rowCells(r){
     <td>${tx(r.补缴原因||'')}</td>
     <td>${tx(r.补缴类型||'')}</td>
     <td>${tx(r.特定人员||'')}</td>
+    <td>${(()=>{const v=r.是否当月处理||'处理';const c=v==='处理'?'t-green':v==='暂不处理'?'t-orange':'t-gray';return`<span class="tag ${c}">${v}</span>`;})()}</td>
+    <td style="color:var(--gray-400);font-size:12px">${tx(r.处理月份||'')}</td>
+    <td>${tag(r.名单是否确认||'')}</td>
     <td>${tx(r.职称||'')}</td>
     <td>${tx(r.性别||'')}</td>
+    <td>${tx(age||'')}</td>
     <td>${tx(r.民族||'')}</td>
     <td>${tx(r.出生日期||'')}</td>
     <td>${tx(r.国籍地区||'')}</td>
@@ -1336,25 +1695,69 @@ function rowCells(r){
     <td>${tx(r.银行||'')}</td>
     <td style="color:var(--gray-400)">${tx(r.账号||'')}</td>
     <td>${tx(r.银行账户类别||'')}</td>
-    <td style="color:var(--gray-400);font-size:12px">${tx(r.名单更新时间||'')}</td>
-    <td>${tag(r.名单是否确认||'')}</td>`;
+    <td style="color:var(--gray-400);font-size:12px">${tx(r.名单更新时间||'')}</td>`;
 }
 
 function rChange(changeData, mode){
   // mode=0: 变动名单台账（有Tab：全部/增员/减员/调基/补缴，无RPA列）
   // mode=1: 申报台账（有Tab：全部/申报失败，有RPA列）
-  const s1=getV('sn'),s2=getV('se'),su=getV('sunit'),sct=getSct(),ssj=getV('ssj');
+  const s1=getV('sn'),s2=getV('se'),sidcard=getV('sidcard'),su=getV('sunit'),sct=getSct(),ssj=getV('ssj');
+  const sconfirm=getV('sconfirm'),sprocess=getV('sprocess'),ssource=getV('ssource'),sreason=getV('sreason');
+  const smanual=getV('smanual'),supdatebase=getV('supdatebase');
+  const sspecial=getV('sspecial'),sjob=getV('sjob'),sempcat=getV('sempcat');
+  const scity=getV('scity'),sbstate=getV('sbstate'),sbform=getV('sbform'),slevel=getV('slevel');
+  const ssbmonth=getV('ssbmonth'),sgjjmonth=getV('sgjjmonth');
+  const sgjj=getV('sgjj'),stdsb=getV('stdsb'),sd1=getV('sd1'),sdept=getV('sdept');
+  const ssb_inc=getV('ssb_inc'),sgjj_inc=getV('sgjj_inc'),ssb_dec=getV('ssb_dec'),sgjj_dec=getV('sgjj_dec');
+  const sprocmonth=getV('sprocmonth'),ssb_adj=getV('ssb_adj'),sgjj_adj=getV('sgjj_adj');
+  const ssb_bkstart=getV('ssb_bkstart'),ssb_bkend=getV('ssb_bkend');
+  const sgjj_bkstart=getV('sgjj_bkstart'),sgjj_bkend=getV('sgjj_bkend');
+  const sins=getSins();
   const data=changeData.filter(r=>{
     if(s1&&!r.name.includes(s1))return false;
     if(s2&&!r.emp.toLowerCase().includes(s2.toLowerCase()))return false;
+    if(sidcard&&!(r.证件号||'').includes(sidcard))return false;
     if(su&&r.社保主体!==su&&r.公积金主体!==su&&r.费用主体!==su)return false;
-    if(sct.length&&!sct.includes(r.change_type))return false;
+    if(sct.length&&!sct.includes(r.change_type)&&vt!=='在保人员')return false;
     if(ssj&&r.社保主体!==ssj)return false;
+    if(sgjj&&r.公积金主体!==sgjj)return false;
+    if(stdsb&&(r.特定工伤主体||'')!==stdsb)return false;
+    if(sd1&&(r.d1||'')!==sd1)return false;
+    if(sdept&&(r.dept||'')!==sdept)return false;
+    if(sconfirm&&r.名单是否确认!==sconfirm)return false;
+    if(sprocess&&(r.是否当月处理||'处理')!==sprocess)return false;
+    if(ssource&&r.source!==ssource)return false;
+    if(sreason&&r.变动原因!==sreason)return false;
+    if(sspecial&&(r.是否为特殊人员||'否')!==sspecial)return false;
+    if(sjob&&(r.职等||'')!==sjob)return false;
+    if(sempcat&&(r.员工类别||'')!==sempcat)return false;
+    if(scity&&(r.参保地||'')!==scity)return false;
+    if(sbstate&&(r.参保状态||'')!==sbstate)return false;
+    if(sbform&&(r.参保形式||'')!==sbform)return false;
+    if(slevel&&(r.医疗缴费档次||'')!==slevel)return false;
+    if(sins.length&&!sins.some(s=>(r.参保险种||'').includes(s)))return false;
+    if(ssb_inc&&(r.社保增员生效月||r.增员时间||'').substring(0,7)!==ssb_inc)return false;
+    if(sgjj_inc&&(r.公积金增员生效月||r.增员时间||'').substring(0,7)!==sgjj_inc)return false;
+    if(ssb_dec&&(r.社保减员生效月||r.减员时间||'').substring(0,7)!==ssb_dec)return false;
+    if(sgjj_dec&&(r.公积金减员生效月||r.减员时间||'').substring(0,7)!==sgjj_dec)return false;
+    if(sprocmonth&&(r.处理月份||'').substring(0,7)!==sprocmonth)return false;
+    if(ssb_adj&&(r.调基时间||'').substring(0,7)!==ssb_adj)return false;
+    if(sgjj_adj&&(r.调基时间||'').substring(0,7)!==sgjj_adj)return false;
+    if(ssb_bkstart&&(r.社保补缴开始时间||r.补缴开始||'')<ssb_bkstart)return false;
+    if(ssb_bkend&&(r.社保补缴结束时间||r.补缴结束||'')>ssb_bkend)return false;
+    if(sgjj_bkstart&&(r.公积金补缴开始时间||r.补缴开始||'')<sgjj_bkstart)return false;
+    if(sgjj_bkend&&(r.公积金补缴结束时间||r.补缴结束||'')>sgjj_bkend)return false;
+    if(ssbmonth&&(r.社保补缴月份||'')!==ssbmonth)return false;
+    if(sgjjmonth&&(r.公积金补缴月份||'')!==sgjjmonth)return false;
+    // 申报台账专用筛选
+    if(mode===1&&smanual&&(r.manual_time?'是':'否')!==smanual)return false;
+    if(mode===1&&supdatebase&&(r.update_base_time?'是':'否')!==supdatebase)return false;
     if(mode===0){
       if(vt==='增员'&&r.change_type!=='增员')return false;
       if(vt==='减员'&&r.change_type!=='减员')return false;
       if(vt==='调基'&&r.change_type!=='调基')return false;
       if(vt==='补缴'&&r.change_type!=='补缴')return false;
+      if(vt==='在保人员'&&r.change_type!=='在保人员')return false;
     }
     if(mode===1){
       if(vt==='申报失败'&&!isErrRow(r))return false;
@@ -1365,7 +1768,7 @@ function rChange(changeData, mode){
   const sl=data.slice((pg-1)*PZ,pg*PZ);
   sl.forEach(r=>{ _rowCache['ch_'+r.emp]=r; });
 
-  const cols = mode===0 ? CHANGE_COLS : CC;
+  const cols = mode===0 ? (vt==='在保人员' ? INSURED_COLS : CHANGE_COLS) : CC;
 
   // ── 表头区域（含分页Tab） ──
   let headerHtml;
@@ -1376,7 +1779,9 @@ function rChange(changeData, mode){
     const decN=changeData.filter(r=>r.change_type==='减员').length;
     const adjN=changeData.filter(r=>r.change_type==='调基').length;
     const supN=changeData.filter(r=>r.change_type==='补缴').length;
-    const tabsWC=[`全部(${allN})`,`增员(${incN})`,`减员(${decN})`,`调基(${adjN})`,`补缴(${supN})`];
+    const insuredN=changeData.filter(r=>r.change_type==='在保人员').length;
+    // PRD: 分页Tab无"全部"，顺序为 增员/减员/调基/补缴/在保人员
+    const tabsWC=[`增员(${incN})`,`减员(${decN})`,`调基(${adjN})`,`补缴(${supN})`,`在保人员(${insuredN})`];
     const th=tabsWC.map(x=>{
       const xl=x.replace(/\(\d+\)/,'').trim();
       const m=x.match(/\((\d+)\)/);
@@ -1384,6 +1789,8 @@ function rChange(changeData, mode){
       return`<div class="tab${xl===vt?' cur':''}" onclick="svt('${xl}')">${xl}${cnt?`<span class="tab-count">${cnt}</span>`:''}</div>`;
     }).join('');
     const normalBtns = CF[0].ac.map(a=>{
+      // PRD：在保人员分页不可编辑，批改和删除隐藏
+      if(vt==='在保人员'&&(a.l==='批改'||a.l==='删除'))return'';
       const icon={
         '批改':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         '删除':'',
@@ -1393,8 +1800,8 @@ function rChange(changeData, mode){
       const danger=a.l==='删除'?' style="color:var(--red);border-color:var(--gray-200);"':'';
       return`<button class="btn btn-secondary btn-sm btn-icon"${danger} onclick="${onclick}">${icon}${a.l}</button>`;
     }).join('');
-    // 导入按钮是静态元素，渲染时只插入占位符，由 mountImportDropdown() 激活
-    headerHtml=`<div class="list-header"><div class="tabs">${th}</div><div class="list-actions">${normalBtns}<span id="importDropSlot"></span></div></div>`;
+    // 确认名单台账：无导入功能（导入由特殊福利工单入口负责，不在此处）
+    headerHtml=`<div class="list-header"><div class="tabs">${th}</div><div class="list-actions">${normalBtns}</div></div>`;
   } else {
     // 申报台账：分页Tab：全部/申报失败
     // 申报台账数据全部来自「确认名单结束时间」回写或紧急工单，名单是否确认全部=是
@@ -1418,6 +1825,45 @@ function rChange(changeData, mode){
 
   // ── 行渲染 ──
   const rows = sl.length ? sl.map(r=>{
+    // 在保人员tab用专属字段渲染
+    if(mode===0 && vt==='在保人员'){
+      const age = r.出生日期 ? (new Date().getFullYear() - parseInt(r.出生日期.substring(0,4))) : '';
+      const insuredRow = `<td><input type="checkbox" class="chk"/></td>
+        <td>${r.seq}</td>
+        <td>${r.ticket_month||''}</td>
+        <td>${tag(r.source||'在保人员')}</td>
+        <td>${tx(r.d1||'')}</td><td>${tx(r.d2||'')}</td><td>${tx(r.d3||'')}</td><td>${tx(r.dept||'')}</td>
+        <td class="name-link">${r.name}</td>
+        <td style="color:var(--gray-400);font-size:12px">${tx(r.证件号||'')}</td>
+        <td style="color:var(--gray-500)">${r.emp}</td>
+        <td>${tx(r.性别||'')}</td>
+        <td>${tx(age||'')}</td>
+        <td>${tx(r.职等||'')}</td>
+        <td>${tx(r.员工类别||'')}</td>
+        <td>${tx(r.医疗缴费档次||'')}</td>
+        <td>${insCell(r.参保险种||'',200)}</td>
+        <td>${tx(r.社保主体||'')}</td>
+        <td>${tx(r.公积金主体||'')}</td>
+        <td>${tx(r.特定工伤主体||'')}</td>
+        <td>${tx(r.费用主体||'')}</td>
+        <td>${tx(r.责任中心名称||r.成本中心||'')}</td>
+        <td>${tx(r.责任中心编码||'')}</td>
+        <td>${tx(r.社保基数||'')}</td>
+        <td>${tx(r.社保基数||'')}</td>
+        <td>${tx(r.公积金基数||'')}</td>
+        <td>${tx(r.公积金个人比例||r.公积金比例||'')}</td>
+        <td>${tx(r.社保增员生效月||'')}</td>
+        <td>${tx(r.公积金增员生效月||'')}</td>
+        <td>${tx(r.社保减员生效月||'')}</td>
+        <td>${tx(r.公积金减员生效月||'')}</td>
+        <td>${tx(r.调基时间||'')}</td>
+        <td>${tx(r.调基时间||'')}</td>
+        <td>${tag(r.参保状态||'')}</td>
+        <td>${tag(r.参保形式||'')}</td>
+        <td>${tx(r.特定人员||'')}`;
+      // 在保人员不可编辑，无操作列按钮
+      return '<tr>' + insuredRow + '</td><td>—</td></tr>';
+    }
     const base = rowCells(r);
     let rpaExtra = '';
     if(mode===1){
@@ -1431,6 +1877,8 @@ function rChange(changeData, mode){
         +'<td>'+tag(r.是否参加医疗补助||'否')+'</td>'
         +'<td>'+tx(r.就业形式||'')+'</td>'
         +'<td>'+tx(r.所属学校||'')+'</td>'
+        +'<td>'+tx(r.从业单位||r.特定工伤主体||'')+'</td>'
+        +'<td style="color:var(--gray-400);font-size:12px">'+tx(r.写入时间||r.名单更新时间||'')+'</td>'
         +'<td>'+tag(r.申报类型||r.change_type||'')+'</td>'
         +'<td style="color:var(--gray-400);font-size:12px">'+tx(r.rpa_time||'')+'</td>'
         +'<td>'+tag(isManual)+'</td>'
@@ -1452,14 +1900,41 @@ function rChange(changeData, mode){
   }).join('') : '<tr><td colspan="'+cols.length+'" class="emp-empty">暂无数据</td></tr>';
 
   document.getElementById('la').innerHTML=`${headerHtml}
+    ${mode===0 ? `<div class="info-bar" id="annoBar"></div>` : ''}
     <div class="rc-bar"><span>共 ${tot} 条记录</span></div>
-    <div class="table-wrap"><table>
-      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <div class="table-wrap"><table onclick="event.target.type==='checkbox'&&event.target.closest('tbody')&&syncSelectAll()">
+      <thead><tr>${cols.map((c,i)=>i===0?`<th><input type="checkbox" class="chk" id="selectAllChk" onchange="toggleSelectAll(this)" style="width:16px;height:16px;accent-color:var(--blue);cursor:pointer;"/></th>`:`<th>${c}</th>`).join('')}</tr></thead>
       <tbody>${rows}</tbody>
     </table></div>${pgHtml(tot,PZ)}`;
 
-  // 模式0：挂载静态导入按钮到占位符
-  if(mode===0) mountImportDropdown();
+  // 模式0：渲染公告条（已移除导入按钮，导入由特殊福利工单入口负责）
+  if(mode===0){
+    // 公告条：按PRD格式"经办人/人事对接人您好！您管辖的XX距离名单确认截止时间仅剩N天"
+    const annoEl=document.getElementById('annoBar');
+    if(annoEl){
+      // 模拟各主体剩余天数（实际应从周期管理取确认名单结束时间）
+      const deadlines=[
+        {names:'大参林医药集团',days:3},
+        {names:'大参林（广州）',days:5},
+        {names:'大参林（漯河）',days:1},
+      ];
+      // 按PRD：相同天数的单位名称用英文逗号隔开，逐条展示
+      if(deadlines.length){
+        // 按天数分组
+        const grouped={};
+        deadlines.forEach(d=>{
+          if(!grouped[d.days]) grouped[d.days]=[];
+          grouped[d.days].push(d.names);
+        });
+        const parts=Object.entries(grouped).sort((a,b)=>a[0]-b[0]).map(([days,names])=>{
+          return`您管辖的<strong>${names.join('，')}</strong>距离名单确认截止时间仅剩 <strong style="color:var(--red)">${days}</strong> 天`;
+        });
+        annoEl.innerHTML=`<div style="padding:8px 20px;background:#FFFBEB;border-radius:6px;border:1px solid #FDE68A;font-size:12px;color:#92400E;display:flex;align-items:flex-start;gap:8px;margin:8px 0 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>经办人/人事对接人您好！${parts.join('；')}。请及时确认。</span></div>`;
+      } else {
+        annoEl.innerHTML='';
+      }
+    }
+  }
 }
 
 
@@ -1470,11 +1945,47 @@ const EC=['序号','一级部门','二级部门','三级部门','部门名称','
 function rPay(month){
   const tl=vt;
   if(tl==='费用明细台账'){rDetail(month);return;}
-  const su=getV('sunit'),ss=getV('ss');
+
+  // 读取缴费台账专属筛选器
+  const su=getV('sunit');
+  const ss=getV('ss');
+  const payCity=getV('pay_city');
+  const paySbno=getV('pay_sbno');
+  const paySbnoYl=getV('pay_sbno_yl');
+  const paySbnoYld=getV('pay_sbno_yld');
+  const payGjjno=getV('pay_gjjno');
+  const payUuid=getV('pay_uuid');
+  const payStateF=getV('pay_state_f');
+  const payDiff=getV('pay_diff');
+  const payDeduct=getV('pay_deduct');
+  const payCreateS=getV('pay_create_s');
+  const payCreateE=getV('pay_create_e');
+  const payConfirmS=getV('pay_confirm_s');
+  const payConfirmE=getV('pay_confirm_e');
+  const payChangeS=getV('pay_change_s');
+  const payChangeE=getV('pay_change_e');
+
   const accts=DA.filter(a=>{
     if(a.month!==month)return false;
     if(su&&a.name!==su)return false;
-    if(ss&&a.sys_type!==ss)return false;
+    if(ss&&a.biz_type!==ss)return false;
+    if(payCity&&(a.city||'')!==payCity)return false;
+    if(paySbno&&!(a.sbNo||'').includes(paySbno))return false;
+    if(paySbnoYl&&!(a.sbNoYLiao||'').includes(paySbnoYl))return false;
+    if(paySbnoYld&&!(a.sbNoYL||'').includes(paySbnoYld))return false;
+    if(payGjjno&&!(a.gjjNo||'').includes(payGjjno))return false;
+    if(payUuid&&!(a.payUuid||'').includes(payUuid))return false;
+    if(payStateF&&a.pay_state!==payStateF)return false;
+    if(payDiff&&(a.diff||'')!==payDiff)return false;
+    if(payDeduct&&(a.deductDate||'')!==payDeduct)return false;
+    // 时间范围：PRD要求仅填起始则取≥起始，仅填结束则取≤结束
+    if(payCreateS&&(a.createTime||'')<payCreateS.replace('T',' '))return false;
+    if(payCreateE&&(a.createTime||'')>payCreateE.replace('T',' '))return false;
+    if(payConfirmS&&(a.confirmTime||'')<payConfirmS.replace('T',' '))return false;
+    if(payConfirmE&&(a.confirmTime||'')>payConfirmE.replace('T',' '))return false;
+    if(payChangeS&&(a.stateChangeTime||'')<payChangeS.replace('T',' '))return false;
+    if(payChangeE&&(a.stateChangeTime||'')>payChangeE.replace('T',' '))return false;
+    // 分页Tab过滤
     if(tl==='差异待确认'&&a.diff!=='缴费金额有差异'&&a.diff!=='缴费人数有差异'&&a.diff!=='缴费金额和人数有差异')return false;
     if(tl==='缴费异常'&&a.pay_state!=='缴费异常')return false;
     if(tl==='已缴费'&&a.pay_state!=='已缴费')return false;
@@ -1514,7 +2025,7 @@ function rPay(month){
       <td style="color:#8c8c8c">${tx(a.stateChangeTime||'')}</td>
       <td>${fh}</td>
       <td style="color:var(--gray-400)">${tx(a.lnj)}</td>
-      <td onclick="event.stopPropagation()"><button class="al" onclick="gD('${a.id}')">查看明细</button></td>
+      <td onclick="event.stopPropagation()"><button class="abtn" onclick="gD('${a.id}')">查看明细</button></td>
     </tr>`;
   });
   document.getElementById('la').innerHTML=`${ltHtml(tabsWC,CF[2])}
@@ -1653,8 +2164,6 @@ function openEdit(type, r) {
     html += grp('生效时间');
     html += inp('社保增员生效月', '社保增员生效月', r.社保增员生效月||r.增员时间||'',false,true);
     html += inp('公积金增员生效月', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'',false,true);
-    html += inp('社保减员生效月', '社保减员生效月', r.社保减员生效月||r.减员时间||'',false,false);
-    html += inp('公积金减员生效月', '公积金减员生效月', r.公积金减员生效月||r.减员时间||'',false,false);
     if(r.change_type==='增员'){
       html += sel('启封原因', '启封原因', r.启封原因||'', ['','正常上班启封','继续缴存','其他'],false,true);
       html += sel('开户原因', '开户原因', r.开户原因||'', ['','新增','调入','其他'],false,true);
@@ -1670,46 +2179,57 @@ function openEdit(type, r) {
       html += inp('社保补缴结束时间', '社保补缴结束时间', r.社保补缴结束时间||r.补缴结束||'',false,true);
       html += inp('公积金补缴开始时间', '公积金补缴开始时间', r.公积金补缴开始时间||r.补缴开始||'',false,true);
       html += inp('公积金补缴结束时间', '公积金补缴结束时间', r.公积金补缴结束时间||r.补缴结束||'',false,true);
+      html += sel('补缴原因', '补缴原因', r.补缴原因||'', ['','欠缴','少缴','其他'],false,true);
+      html += sel('补缴类型', '补缴类型', r.补缴类型||'', ['','欠缴补缴','少缴补缴'],false,true);
     }
+    // PRD：经办人 + 人事对接人均可编辑 是否当月处理、处理月份
+    html += grp('处理状态（双角色均可编辑）');
+    html += sel('是否当月处理', '是否当月处理', r.是否当月处理||'处理', ['处理','暂不处理','永不处理'],false,true);
+    html += inp('处理月份', '处理月份', r.处理月份||r.ticket_month||'',false,true);
+    // 人事对接人专属字段（PRD：变动类型、社保增员生效月、公积金增员生效月、费用主体、减员原因）
+    html += `<div class="mfield-group-title" style="grid-column:1/-1;background:var(--orange-light);color:#92400e;padding:8px 12px;border-radius:4px;margin-top:8px;">👤 人事对接人专属可编辑字段</div>`;
+    html += sel('变动类型（HR）', 'hr_change_type', r.change_type||'增员', ['增员','减员','补缴','调基']);
+    html += inp('社保增员生效月（HR）', 'hr_sb_inc', r.社保增员生效月||r.增员时间||'');
+    html += inp('公积金增员生效月（HR）', 'hr_gjj_inc', r.公积金增员生效月||r.增员时间||'');
+    html += inp('费用主体（HR）', 'hr_cost_center', r.费用主体||'');
+    html += sel('减员原因（HR）', 'hr_leave_reason', r.减员原因||'', ['','主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同']);
 
   } else if (type === 'change') {
-    // 申报台账 编辑 — 经办人可编辑字段（同变动名单台账经办人权限）
+    // 申报台账 编辑 — PRD：社保/公积金经办人可编辑字段
     document.getElementById('modalTitle').textContent = '编辑申报台账';
     html += ro('员工号', r.emp); html += ro('姓名', r.name);
     html += ro('变动类型', r.change_type); html += ro('数据来源', r.source);
-    html += ro('社保主体', r.社保主体); html += ro('参保地', r.参保地);
+    html += ro('参保地', r.参保地);
+    html += grp('参保信息');
     if(r.change_type==='增员'){
       html += sel('就业前身份', '就业前身份', r.就业前身份||'', ['就业转失业人员','未升学初中毕业生','未升学高中毕业生','应届高校毕业生','中职（专）、技校应届毕业生','退伍兵','随军家属','刑释解教人员','农转居','残疾人','被征地农民','水库移民','三峡库区移民','本地农村劳动力','其他']);
+      html += sel('银行账户类别', '银行账户类别', r.银行账户类别||'对私', ['对私','对私数字钱包']);
     }
     html += sel('人员类别', '人员类别', r.人员类别||'', ['工人','个人','干部','农民']);
     html += sel('人员状态', '人员状态', r.人员状态||'在职', ['在职','退休','其它','1-4级工残']);
     html += sel('用工形式', '用工形式', r.用工形式||'合同', ['干部','合同','城镇合同制职工','农村合同制工人','法人代表']);
-    if(r.change_type==='增员'){
-      html += sel('银行账户类别', '银行账户类别', r.银行账户类别||'对私', ['对私','对私数字钱包']);
-    }
-    html += inp('费用主体', '费用主体', r.费用主体);
+    html += grp('主体与费用');
+    html += inp('社保主体', '社保主体', r.社保主体||'');
+    html += inp('公积金主体', '公积金主体', r.公积金主体||'');
+    html += inp('费用主体', '费用主体', r.费用主体||'');
     html += inp('责任中心名称', '责任中心名称', r.责任中心名称||r.成本中心||'');
     html += inp('责任中心编码', '责任中心编码', r.责任中心编码||'');
+    html += inp('特定工伤险主体', '特定工伤险主体', r.特定工伤主体||'');
+    html += grp('参保详情');
     html += sel('参保状态', '参保状态', r.参保状态||'未缴纳', ['未缴纳','已缴纳','已停保','不缴纳']);
     html += sel('参保形式', '参保形式', r.参保形式||'正常参保', ['正常参保','异地参保','第三方']);
     html += inp('参保险种', '参保险种', r.参保险种||'');
     html += inp('公积金个人比例', '公积金个人比例', r.公积金个人比例||r.公积金比例||'');
-    if(r.change_type==='调基'){
-      html += inp('现公积金个人比例', '现公积金个人比例', r.现公积金个人比例||r.现公积金比例||'');
-    }
-    html += inp('社保基数', '社保基数', r.社保基数||'');
-    if(r.change_type==='调基'){
-      html += inp('现社保基数', '现社保基数', r.现社保基数||'');
-    }
+    if(r.change_type==='调基'){ html += inp('现公积金个人比例', '现公积金个人比例', r.现公积金个人比例||''); }
+    html += inp('社保单位基数', '社保单位基数', r.社保基数||'');
+    if(r.change_type==='调基'){ html += inp('现社保单位基数', '现社保单位基数', r.现社保基数||''); }
+    html += inp('社保个人基数', '社保个人基数', r.社保基数||'');
+    if(r.change_type==='调基'){ html += inp('现社保个人基数', '现社保个人基数', r.现社保基数||''); }
     html += inp('公积金基数', '公积金基数', r.公积金基数||'');
-    if(r.change_type==='调基'){
-      html += inp('现公积金基数', '现公积金基数', r.现公积金基数||'');
-    }
+    if(r.change_type==='调基'){ html += inp('现公积金基数', '现公积金基数', r.现公积金基数||''); }
     html += sel('缴费档次', '缴费档次', r.医疗缴费档次||'一档', ['一档','二档']);
     html += inp('社保增员生效月', '社保增员生效月', r.社保增员生效月||r.增员时间||'');
     html += inp('公积金增员生效月', '公积金增员生效月', r.公积金增员生效月||r.增员时间||'');
-    html += inp('社保减员生效月', '社保减员生效月', r.社保减员生效月||r.减员时间||'');
-    html += inp('公积金减员生效月', '公积金减员生效月', r.公积金减员生效月||r.减员时间||'');
     if(r.change_type==='增员'){
       html += sel('启封原因', '启封原因', r.启封原因||'', ['','正常上班启封','继续缴存','其他']);
       html += sel('开户原因', '开户原因', r.开户原因||'', ['','新增','调入','其他']);
@@ -1725,7 +2245,11 @@ function openEdit(type, r) {
       html += inp('社保补缴结束时间', '社保补缴结束时间', r.社保补缴结束时间||r.补缴结束||'');
       html += inp('公积金补缴开始时间', '公积金补缴开始时间', r.公积金补缴开始时间||r.补缴开始||'');
       html += inp('公积金补缴结束时间', '公积金补缴结束时间', r.公积金补缴结束时间||r.补缴结束||'');
+      html += sel('补缴原因', '补缴原因', r.补缴原因||'', ['','欠缴','少缴','其他']);
+      html += sel('补缴类型', '补缴类型', r.补缴类型||'', ['','欠缴补缴','少缴补缴']);
     }
+    html += grp('人工处理');
+    html += inp('人工处理备注', '人工处理备注', r.人工处理备注||'');
 
   } else if (type === 'cost') {
     document.getElementById('modalTitle').textContent = '编辑员工费用明细（缴费失败）';
@@ -1811,17 +2335,118 @@ function recalcCost(){
 
 // ── 申报台账批量操作 ──
 function batchRpaApply(){
-  const checked=Array.from(document.querySelectorAll('tbody input.chk:checked'));
-  if(!checked.length){showToast('请先勾选要发起申报的记录','warn');return;}
+  const month = getV('smonth');
+  const mdata = MONTH_DATA[month]||{change:[]};
+  const sbData = mdata.change.filter(r=>r.change_type!=='在保人员');
+
+  // 按社保主体、公积金主体、特定工伤险主体分别统计
+  const sbMap={}, gjjMap={}, tdsbMap={};
+  sbData.forEach(r=>{
+    if(r.社保主体){
+      if(!sbMap[r.社保主体])sbMap[r.社保主体]=0;
+      sbMap[r.社保主体]++;
+    }
+    if(r.公积金主体&&(r.参保险种||'').includes('住房公积金')){
+      if(!gjjMap[r.公积金主体])gjjMap[r.公积金主体]=0;
+      gjjMap[r.公积金主体]++;
+    }
+    if(r.特定工伤主体&&(r.参保险种||'').includes('特定人员单项工伤险')){
+      if(!tdsbMap[r.特定工伤主体])tdsbMap[r.特定工伤主体]=0;
+      tdsbMap[r.特定工伤主体]++;
+    }
+  });
+
+  // 构建主体列表（demo中视为管理员角色，可见全量主体）
+  const list = document.getElementById('rpaSubjectList');
+  let html='';
+  if(Object.keys(sbMap).length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;padding:8px 0 4px;text-transform:uppercase;">社保主体</div>`;
+    Object.entries(sbMap).sort().forEach(([name,cnt])=>{
+      html+=`<label class="sct-item" style="padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-700);">
+        <input type="checkbox" class="rpa-subj-chk" value="sb:${name}" onchange="rpaUpdateCount()" style="accent-color:var(--blue);width:14px;height:14px;flex-shrink:0;">
+        <span style="flex:1">${name}</span>
+        <span style="font-size:12px;color:var(--gray-400);">${cnt} 条</span>
+      </label>`;
+    });
+  }
+  if(Object.keys(gjjMap).length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;padding:8px 0 4px;text-transform:uppercase;border-top:1px solid var(--gray-100);margin-top:4px;">公积金主体</div>`;
+    Object.entries(gjjMap).sort().forEach(([name,cnt])=>{
+      html+=`<label class="sct-item" style="padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-700);">
+        <input type="checkbox" class="rpa-subj-chk" value="gjj:${name}" onchange="rpaUpdateCount()" style="accent-color:var(--teal);width:14px;height:14px;flex-shrink:0;">
+        <span style="flex:1">${name}</span>
+        <span style="font-size:12px;color:var(--gray-400);">${cnt} 条</span>
+      </label>`;
+    });
+  }
+  if(Object.keys(tdsbMap).length){
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;padding:8px 0 4px;text-transform:uppercase;border-top:1px solid var(--gray-100);margin-top:4px;">特定工伤险主体</div>`;
+    Object.entries(tdsbMap).sort().forEach(([name,cnt])=>{
+      html+=`<label class="sct-item" style="padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--gray-700);">
+        <input type="checkbox" class="rpa-subj-chk" value="tdsb:${name}" onchange="rpaUpdateCount()" style="accent-color:var(--purple);width:14px;height:14px;flex-shrink:0;">
+        <span style="flex:1">${name}</span>
+        <span style="font-size:12px;color:var(--gray-400);">${cnt} 条</span>
+      </label>`;
+    });
+  }
+  if(!html) html='<div style="text-align:center;color:var(--gray-400);padding:24px;font-size:13px;">暂无可申报数据</div>';
+  list.innerHTML=html;
+
+  document.getElementById('rpaSelCount').textContent='已选 0 个主体';
+  document.getElementById('rpaSelectAll').checked=false;
+  document.getElementById('rpaSelectAll').indeterminate=false;
+  document.getElementById('rpaModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function rpaToggleAll(cb){
+  document.querySelectorAll('.rpa-subj-chk').forEach(el=>el.checked=cb.checked);
+  rpaUpdateCount();
+}
+
+function rpaUpdateCount(){
+  const total = document.querySelectorAll('.rpa-subj-chk').length;
+  const sel = document.querySelectorAll('.rpa-subj-chk:checked').length;
+  document.getElementById('rpaSelCount').textContent = `已选 ${sel} 个主体`;
+  const allCb = document.getElementById('rpaSelectAll');
+  allCb.checked = sel===total&&total>0;
+  allCb.indeterminate = sel>0&&sel<total;
+}
+
+function closeRpaModal(e){
+  if(e&&e.target!==document.getElementById('rpaModal'))return;
+  document.getElementById('rpaModal').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+function confirmRpaApply(){
+  const selected = Array.from(document.querySelectorAll('.rpa-subj-chk:checked')).map(el=>el.value);
+  if(!selected.length){showToast('请至少选择一个申报主体','warn');return;}
+
+  const sbSubjects = selected.filter(v=>v.startsWith('sb:')).map(v=>v.slice(3));
+  const gjjSubjects = selected.filter(v=>v.startsWith('gjj:')).map(v=>v.slice(4));
+  const tdsbSubjects = selected.filter(v=>v.startsWith('tdsb:')).map(v=>v.slice(5));
+
   const now=new Date();const pad=n=>String(n).padStart(2,'0');
   const ts=`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const month = getV('smonth');
+  const mdata = MONTH_DATA[month]||{change:[]};
   let cnt=0;
-  checked.forEach(cb=>{
-    const tr=cb.closest('tr');
-    const span=tr.querySelector('.row-ops');
-    if(!span)return;
-    const r=_rowCache['ch_'+span.dataset.emp];
-    if(!r)return;
+  const target=mdata.change.filter(r=>{
+    if(r.change_type==='在保人员')return false;
+    return sbSubjects.includes(r.社保主体)
+      || gjjSubjects.includes(r.公积金主体)
+      || tdsbSubjects.includes(r.特定工伤主体||'');
+  });
+
+  // PRD：单次数据上限为1000
+  if(target.length>1000){
+    showToast('所选主体数据超过1000条上限，请缩小选择范围','warn');
+    return;
+  }
+
+  target.forEach(r=>{
     r.rpa_time=ts;
     if(!r.rpa_sb_items||!r.rpa_sb_items.length){
       const ri=INS_RPA_SB[(r.emp.charCodeAt(3))%INS_RPA_SB.length];
@@ -1832,8 +2457,20 @@ function batchRpaApply(){
     }
     cnt++;
   });
+
+  closeRpaModal();
   render();
-  showToast(`RPA申报已发起 ${cnt} 条`,'success');
+
+  if(cnt>0){
+    const names=[
+      ...sbSubjects.map(n=>`社保:${n}`),
+      ...gjjSubjects.map(n=>`公积金:${n}`),
+      ...tdsbSubjects.map(n=>`特定工伤:${n}`)
+    ].join('、');
+    showToast(`RPA申报已发起，共 ${cnt} 条 | ${names}`,'success');
+  } else {
+    showToast('所选主体下暂无待申报数据','warn');
+  }
 }
 
 function batchManualProcess(){
@@ -1877,10 +2514,13 @@ function batchUpdateBase(){
 }
 
 function fillOps() {
-  // 变动名单台账（card=0）：row-ops-confirm → 编辑
+  // 变动名单台账（card=0）：row-ops-confirm → 编辑（PRD：在保人员分页不可编辑）
   document.querySelectorAll('.row-ops-confirm').forEach(function(el) {
     if (el.children.length) return;
     var emp = el.dataset.emp;
+    var r = _rowCache['ch_' + emp];
+    // PRD：在保人员tab 不可编辑
+    if (r && r.change_type === '在保人员') return;
     var editBtn = document.createElement('button');
     editBtn.className = 'abtn';
     editBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;margin-right:4px';
@@ -2052,10 +2692,17 @@ function openBatchEdit(){
     sel('参保状态','参保状态',['未缴纳','已缴纳','已停保','不缴纳']),
     sel('参保形式','参保形式',['正常参保','异地参保','第三方']),
     inp('参保险种','参保险种',''),
-    inp('公积金个人比例','公积金比例',''),
-    inp('社保基数','社保基数',''),
+    inp('公积金个人比例','公积金个人比例',''),
+    inp('原公积金个人比例','原公积金个人比例',''),
+    inp('社保单位基数','社保单位基数',''),
+    inp('原社保单位基数','原社保单位基数',''),
+    inp('社保个人基数','社保个人基数',''),
+    inp('原社保个人基数','原社保个人基数',''),
     inp('公积金基数','公积金基数',''),
+    inp('原公积金基数','原公积金基数',''),
     sel('缴费档次','缴费档次',['一档','二档']),
+    inp('社保增员生效月','社保增员生效月','YYYY-MM'),
+    inp('公积金增员生效月','公积金增员生效月','YYYY-MM'),
     sel('启封原因','启封原因',['正常上班启封','继续缴存','其他']),
     sel('开户原因','开户原因',['新增','调入','其他']),
     sel('减员原因','减员原因',['主动离职','因公外派','死亡','病退','退休','被动离职','不胜任工作','违纪辞退','组织架构调整','终止劳动合同']),
@@ -2066,6 +2713,11 @@ function openBatchEdit(){
     inp('社保补缴结束时间','社保补缴结束时间',''),
     inp('公积金补缴开始时间','公积金补缴开始时间',''),
     inp('公积金补缴结束时间','公积金补缴结束时间',''),
+    sel('补缴原因','补缴原因',['欠缴','少缴','其他']),
+    sel('补缴类型','补缴类型',['欠缴补缴','少缴补缴']),
+    // PRD：是否当月处理、处理月份经办人和人事对接人都可批改
+    sel('是否当月处理','是否当月处理',['处理','暂不处理','永不处理'],'不修改'),
+    inp('处理月份','处理月份','YYYY-MM'),
   ].join('');
 
   // 重置预览区
