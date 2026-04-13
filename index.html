@@ -814,7 +814,7 @@ function genData(month,total){
       rpa_time:confirmed==='是'?`${month}-${String((i%9)+1).padStart(2,'0')} ${String(8+(i%10)).padStart(2,'0')}:${String(i%60).padStart(2,'0')}:00`:'',
       附件:confirmed==='是'&&!isE?[{name:`申报附件-${i+1}.pdf`,type:'社保申报附件'}]:[],
       名单更新时间:`${month}-${String((i%9)+1).padStart(2,'0')}`,名单是否确认:confirmed,
-      是否当月处理:['处理','处理','处理','暂不处理','处理'][i%5],处理月份:month,
+      是否当月处理:['处理','处理','处理','暂不处理','永不处理'][i%5],处理月份:month,
       ticket_month:month,rpa_sb_items:rpa,rpa_gjj_result:INS_HAS_GJJ[idx]?(isE&&i%3===2?'申报失败':'申报成功'):'',rpa_sb_remark:isE&&i%3!==2?['证件号不匹配','减员时间超截止'][i%2]:'',rpa_gjj_remark:isE&&i%3===2?'公积金账户异常':'',isErr:isE});
   }
 
@@ -1758,6 +1758,11 @@ function rChange(changeData, mode){
       if(vt==='调基'&&r.change_type!=='调基')return false;
       if(vt==='补缴'&&r.change_type!=='补缴')return false;
       if(vt==='在保人员'&&r.change_type!=='在保人员')return false;
+      // 特殊人员变动明细：「是否当月处理」= 暂不处理 OR 永不处理 OR 数据来源=特殊工单，排除在保人员
+      if(vt==='特殊人员变动明细'){
+        if(r.change_type==='在保人员')return false;
+        if(r.是否当月处理!=='暂不处理'&&r.是否当月处理!=='永不处理'&&r.source!=='特殊工单')return false;
+      }
     }
     if(mode===1){
       if(vt==='申报失败'&&!isErrRow(r))return false;
@@ -1780,8 +1785,10 @@ function rChange(changeData, mode){
     const adjN=changeData.filter(r=>r.change_type==='调基').length;
     const supN=changeData.filter(r=>r.change_type==='补缴').length;
     const insuredN=changeData.filter(r=>r.change_type==='在保人员').length;
-    // PRD: 分页Tab无"全部"，顺序为 增员/减员/调基/补缴/在保人员
-    const tabsWC=[`增员(${incN})`,`减员(${decN})`,`调基(${adjN})`,`补缴(${supN})`,`在保人员(${insuredN})`];
+    // PRD: 特殊人员变动明细 = 「是否当月处理」= 暂不处理 OR 永不处理 OR 数据来源=特殊工单
+    const specialN=changeData.filter(r=>r.change_type!=='在保人员'&&(r.是否当月处理==='暂不处理'||r.是否当月处理==='永不处理'||r.source==='特殊工单')).length;
+    // PRD: 分页Tab顺序：增员/减员/调基/补缴/在保人员/特殊人员变动明细
+    const tabsWC=[`增员(${incN})`,`减员(${decN})`,`调基(${adjN})`,`补缴(${supN})`,`在保人员(${insuredN})`,`特殊人员变动明细(${specialN})`];
     const th=tabsWC.map(x=>{
       const xl=x.replace(/\(\d+\)/,'').trim();
       const m=x.match(/\((\d+)\)/);
@@ -1789,8 +1796,8 @@ function rChange(changeData, mode){
       return`<div class="tab${xl===vt?' cur':''}" onclick="svt('${xl}')">${xl}${cnt?`<span class="tab-count">${cnt}</span>`:''}</div>`;
     }).join('');
     const normalBtns = CF[0].ac.map(a=>{
-      // PRD：在保人员分页不可编辑，批改和删除隐藏
-      if(vt==='在保人员'&&(a.l==='批改'||a.l==='删除'))return'';
+      // PRD：在保人员/特殊人员变动明细分页不可编辑，批改和删除隐藏
+      if((vt==='在保人员'||vt==='特殊人员变动明细')&&(a.l==='批改'||a.l==='删除'))return'';
       const icon={
         '批改':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
         '删除':'',
@@ -2519,8 +2526,8 @@ function fillOps() {
     if (el.children.length) return;
     var emp = el.dataset.emp;
     var r = _rowCache['ch_' + emp];
-    // PRD：在保人员tab 不可编辑
-    if (r && r.change_type === '在保人员') return;
+    // PRD：在保人员tab 和 特殊人员变动明细tab 不可编辑
+    if (r && (r.change_type === '在保人员' || vt === '特殊人员变动明细')) return;
     var editBtn = document.createElement('button');
     editBtn.className = 'abtn';
     editBtn.style.cssText = 'font-size:11px;height:26px;padding:0 8px;margin-right:4px';
